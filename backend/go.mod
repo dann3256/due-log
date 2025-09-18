@@ -1,4 +1,4 @@
-module github.com/dann3256/IizukaEats-mobile/backend
+module github.com/dann3256/due-log/backend
 
 go 1.23.0
 
