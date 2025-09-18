@@ -1,0 +1,60 @@
+services:
+  # Goアプリケーションのサービス
+  backend:
+    build:
+      # このファイルがあるコードを使う
+      context: .
+      dockerfile: Dockerfile.dev # 開発環境用のDockerfileを指定
+      # PCのポートとコンテナのポートをつなぐ
+    ports:
+      - "8080:8080"
+
+      # カレントディレクトリ（.）をコンテナの/appにマウント（変更があったらAirが認知して反映）（バインドマウント）
+    volumes:
+      - ./backend:/app
+
+    # postgresql://...: これからPostgreSQL形式の住所を書く合図
+    # user:password: データベースのコンテナに入るためのユーザー名とパスワード
+    # @db:5432: データベースコンテナのポート番号。ここでのdbは、docker-compose.yaml内で定義したデータベースコンテナの名前
+    # /iizukaeats_db: 接続したいデータベース
+    # ?sslmode=disable: 暗号化通信（SSL）は使わないという設定
+    # JWT_SECRET_KEY=your-super-secret-jwt-key
+    #JWT（JSON Web Token）という認証技術で、デジタルの署名を作ったり検証したりするために使われる鍵
+
+    env_file: # ★ environment: を削除し、こちらに変更
+      - ./.env # .envファイルを読み込む
+
+    #データベースコンテナの自己診断機能（healthcheck）が「正常（healthy）」という結果を返すまでアプリの起動を開始しないように設定
+    # これによりマイグレーションが完了するまでアプリが起動しないようにできる
+    depends_on:
+      db:
+        condition: service_healthy
+
+  # データベースのサービス
+  db:
+    image: postgres:15-alpine
+    environment:
+      - POSTGRES_USER=user
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=iizukaeats_db
+    ports:
+      - "5432:5432"
+    # image: postgres:15-alpine で提供される公式のPostgreSQLコンテナは、デフォルトでデータを /var/lib/postgresql/data に保存するように設計されている
+    # それをdb-dataにマウントして永続化
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    healthcheck:
+      # pg_isreadyというコマンドを実行して、userという名前でiizukaeats_dbデータベースに接続できるかPostgreSQL自身に問い合わせます。
+      test: ["CMD-SHELL", "pg_isready -U user -d iizukaeats_db"]
+      # 5秒ごとにチェック
+      interval: 5s
+      # チェックを開始してから5秒以内に応答がなければ、その回のチェックは「失敗」と見なす
+      timeout: 5s
+      # 20回連続で失敗したらコンテナは「不健康」と見なされる
+      retries: 20
+      # 起動後の最初の10秒間は、healthcheckの失敗を許容する猶予期間を設定
+      # これにより、DBの初期化に時間がかかってもエラーになりにくくなる
+      start_period: 10s
+# db-dataを永続化するためのボリュームを定義（名前付きボリューム）
+volumes:
+  db-data:
