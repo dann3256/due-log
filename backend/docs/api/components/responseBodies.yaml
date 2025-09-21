@@ -34,3 +34,19 @@ components:
               - id
               - name
               - email
+    CompanyResponse:
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              id:
+                $ref: "./schemas.yaml#/components/schemas/Company/properties/id"
+              name:
+                $ref: "./schemas.yaml#/components/schemas/Company/properties/name"
+              credit_limit:
+                $ref: "./schemas.yaml#/components/schemas/Company/properties/credit_limit"
+            required: 
+              - id
+              - name
+              - credit_limit

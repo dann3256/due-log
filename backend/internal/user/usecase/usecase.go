@@ -3,9 +3,9 @@ package usecase
 
 import (
 	"context"
-	"github.com/dann3256/IizukaEats-mobile/backend/internal/user/repository"
-	"github.com/dann3256/IizukaEats-mobile/backend/internal/user/domain"
-	"github.com/dann3256/IizukaEats-mobile/backend/pkg/jwt"
+	"github.com/dann3256/due-log/backend/internal/user/repository"
+	"github.com/dann3256/due-log/backend/internal/user/domain"
+	"github.com/dann3256/due-log/backend/pkg/jwt"
 	"golang.org/x/crypto/bcrypt"
 )
 

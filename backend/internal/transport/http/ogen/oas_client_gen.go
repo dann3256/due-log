@@ -16,7 +16,6 @@ import (
 	"go.opentelemetry.io/otel/trace"
 
 	ht "github.com/ogen-go/ogen/http"
-	"github.com/ogen-go/ogen/ogenerrors"
 	"github.com/ogen-go/ogen/otelogen"
 	"github.com/ogen-go/ogen/uri"
 )
@@ -28,12 +27,12 @@ func trimTrailingSlashes(u *url.URL) {
 
 // Invoker invokes operations described by OpenAPI v3 specification.
 type Invoker interface {
-	// GetUser invokes get User operation.
+	// CreateCompany invokes CreateCompany operation.
 	//
-	// Get the profile of the currently authenticated user.
+	// Create a new company record.
 	//
-	// GET /me
-	GetUser(ctx context.Context) (GetUserRes, error)
+	// POST /createcompany
+	CreateCompany(ctx context.Context, request *CreateCompanyReq) (CreateCompanyRes, error)
 	// Login invokes login operation.
 	//
 	// Authenticate user and return JWT token.
@@ -51,7 +50,6 @@ type Invoker interface {
 // Client implements OAS client.
 type Client struct {
 	serverURL *url.URL
-	sec       SecuritySource
 	baseClient
 }
 
@@ -60,7 +58,7 @@ var _ Handler = struct {
 }{}
 
 // NewClient initializes new Client defined by OAS.
-func NewClient(serverURL string, sec SecuritySource, opts ...ClientOption) (*Client, error) {
+func NewClient(serverURL string, opts ...ClientOption) (*Client, error) {
 	u, err := url.Parse(serverURL)
 	if err != nil {
 		return nil, err
@@ -73,7 +71,6 @@ func NewClient(serverURL string, sec SecuritySource, opts ...ClientOption) (*Cli
 	}
 	return &Client{
 		serverURL:  u,
-		sec:        sec,
 		baseClient: c,
 	}, nil
 }
@@ -93,21 +90,21 @@ func (c *Client) requestURL(ctx context.Context) *url.URL {
 	return u
 }
 
-// GetUser invokes get User operation.
+// CreateCompany invokes CreateCompany operation.
 //
-// Get the profile of the currently authenticated user.
+// Create a new company record.
 //
-// GET /me
-func (c *Client) GetUser(ctx context.Context) (GetUserRes, error) {
-	res, err := c.sendGetUser(ctx)
+// POST /createcompany
+func (c *Client) CreateCompany(ctx context.Context, request *CreateCompanyReq) (CreateCompanyRes, error) {
+	res, err := c.sendCreateCompany(ctx, request)
 	return res, err
 }
 
-func (c *Client) sendGetUser(ctx context.Context) (res GetUserRes, err error) {
+func (c *Client) sendCreateCompany(ctx context.Context, request *CreateCompanyReq) (res CreateCompanyRes, err error) {
 	otelAttrs := []attribute.KeyValue{
-		otelogen.OperationID("get User"),
-		semconv.HTTPRequestMethodKey.String("GET"),
-		semconv.HTTPRouteKey.String("/me"),
+		otelogen.OperationID("CreateCompany"),
+		semconv.HTTPRequestMethodKey.String("POST"),
+		semconv.HTTPRouteKey.String("/createcompany"),
 	}
 
 	// Run stopwatch.
@@ -122,7 +119,7 @@ func (c *Client) sendGetUser(ctx context.Context) (res GetUserRes, err error) {
 	c.requests.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
 
 	// Start a span for this request.
-	ctx, span := c.cfg.Tracer.Start(ctx, GetUserOperation,
+	ctx, span := c.cfg.Tracer.Start(ctx, CreateCompanyOperation,
 		trace.WithAttributes(otelAttrs...),
 		clientSpanKind,
 	)
@@ -140,46 +137,16 @@ func (c *Client) sendGetUser(ctx context.Context) (res GetUserRes, err error) {
 	stage = "BuildURL"
 	u := uri.Clone(c.requestURL(ctx))
 	var pathParts [1]string
-	pathParts[0] = "/me"
+	pathParts[0] = "/createcompany"
 	uri.AddPathParts(u, pathParts[:]...)
 
 	stage = "EncodeRequest"
-	r, err := ht.NewRequest(ctx, "GET", u)
+	r, err := ht.NewRequest(ctx, "POST", u)
 	if err != nil {
 		return res, errors.Wrap(err, "create request")
 	}
-
-	{
-		type bitset = [1]uint8
-		var satisfied bitset
-		{
-			stage = "Security:BearerAuth"
-			switch err := c.securityBearerAuth(ctx, GetUserOperation, r); {
-			case err == nil: // if NO error
-				satisfied[0] |= 1 << 0
-			case errors.Is(err, ogenerrors.ErrSkipClientSecurity):
-				// Skip this security.
-			default:
-				return res, errors.Wrap(err, "security \"BearerAuth\"")
-			}
-		}
-
-		if ok := func() bool {
-		nextRequirement:
-			for _, requirement := range []bitset{
-				{0b00000001},
-			} {
-				for i, mask := range requirement {
-					if satisfied[i]&mask != mask {
-						continue nextRequirement
-					}
-				}
-				return true
-			}
-			return false
-		}(); !ok {
-			return res, ogenerrors.ErrSecurityRequirementIsNotSatisfied
-		}
+	if err := encodeCreateCompanyRequest(request, r); err != nil {
+		return res, errors.Wrap(err, "encode request")
 	}
 
 	stage = "SendRequest"
@@ -190,7 +157,7 @@ func (c *Client) sendGetUser(ctx context.Context) (res GetUserRes, err error) {
 	defer resp.Body.Close()
 
 	stage = "DecodeResponse"
-	result, err := decodeGetUserResponse(resp)
+	result, err := decodeCreateCompanyResponse(resp)
 	if err != nil {
 		return res, errors.Wrap(err, "decode response")
 	}

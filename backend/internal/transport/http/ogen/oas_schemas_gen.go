@@ -2,30 +2,43 @@
 
 package openapi
 
-type BearerAuth struct {
-	Token string
-	Roles []string
+type CompanyResponse struct {
+	ID          ID          `json:"id"`
+	Name        Name        `json:"name"`
+	CreditLimit CreditLimit `json:"credit_limit"`
 }
 
-// GetToken returns the value of Token.
-func (s *BearerAuth) GetToken() string {
-	return s.Token
+// GetID returns the value of ID.
+func (s *CompanyResponse) GetID() ID {
+	return s.ID
 }
 
-// GetRoles returns the value of Roles.
-func (s *BearerAuth) GetRoles() []string {
-	return s.Roles
+// GetName returns the value of Name.
+func (s *CompanyResponse) GetName() Name {
+	return s.Name
 }
 
-// SetToken sets the value of Token.
-func (s *BearerAuth) SetToken(val string) {
-	s.Token = val
+// GetCreditLimit returns the value of CreditLimit.
+func (s *CompanyResponse) GetCreditLimit() CreditLimit {
+	return s.CreditLimit
 }
 
-// SetRoles sets the value of Roles.
-func (s *BearerAuth) SetRoles(val []string) {
-	s.Roles = val
+// SetID sets the value of ID.
+func (s *CompanyResponse) SetID(val ID) {
+	s.ID = val
 }
+
+// SetName sets the value of Name.
+func (s *CompanyResponse) SetName(val Name) {
+	s.Name = val
+}
+
+// SetCreditLimit sets the value of CreditLimit.
+func (s *CompanyResponse) SetCreditLimit(val CreditLimit) {
+	s.CreditLimit = val
+}
+
+func (*CompanyResponse) createCompanyRes() {}
 
 // Ref: #/components/schemas/ConflictError
 type ConflictError struct {
@@ -55,6 +68,33 @@ func (s *ConflictError) SetMessage(val OptString) {
 
 func (*ConflictError) registerUserRes() {}
 
+type CreateCompanyReq struct {
+	Name        string `json:"name"`
+	CreditLimit int    `json:"credit_limit"`
+}
+
+// GetName returns the value of Name.
+func (s *CreateCompanyReq) GetName() string {
+	return s.Name
+}
+
+// GetCreditLimit returns the value of CreditLimit.
+func (s *CreateCompanyReq) GetCreditLimit() int {
+	return s.CreditLimit
+}
+
+// SetName sets the value of Name.
+func (s *CreateCompanyReq) SetName(val string) {
+	s.Name = val
+}
+
+// SetCreditLimit sets the value of CreditLimit.
+func (s *CreateCompanyReq) SetCreditLimit(val int) {
+	s.CreditLimit = val
+}
+
+type CreditLimit int
+
 type Email string
 
 // Ref: #/components/schemas/ForbiddenError
@@ -83,8 +123,7 @@ func (s *ForbiddenError) SetMessage(val OptString) {
 	s.Message = val
 }
 
-func (*ForbiddenError) getUserRes() {}
-func (*ForbiddenError) loginRes()   {}
+func (*ForbiddenError) loginRes() {}
 
 type ID int32
 
@@ -114,9 +153,9 @@ func (s *InternalServerError) SetMessage(val OptString) {
 	s.Message = val
 }
 
-func (*InternalServerError) getUserRes()      {}
-func (*InternalServerError) loginRes()        {}
-func (*InternalServerError) registerUserRes() {}
+func (*InternalServerError) createCompanyRes() {}
+func (*InternalServerError) loginRes()         {}
+func (*InternalServerError) registerUserRes()  {}
 
 type LoginReq struct {
 	Name         Name         `json:"name"`
@@ -295,8 +334,7 @@ func (s *UnauthorizedError) SetMessage(val OptString) {
 	s.Message = val
 }
 
-func (*UnauthorizedError) getUserRes() {}
-func (*UnauthorizedError) loginRes()   {}
+func (*UnauthorizedError) loginRes() {}
 
 type UserResponse struct {
 	ID    ID    `json:"id"`
@@ -334,7 +372,6 @@ func (s *UserResponse) SetEmail(val Email) {
 	s.Email = val
 }
 
-func (*UserResponse) getUserRes()      {}
 func (*UserResponse) registerUserRes() {}
 
 // Ref: #/components/schemas/ValidationError
@@ -363,5 +400,6 @@ func (s *ValidationError) SetMessage(val OptString) {
 	s.Message = val
 }
 
-func (*ValidationError) loginRes()        {}
-func (*ValidationError) registerUserRes() {}
+func (*ValidationError) createCompanyRes() {}
+func (*ValidationError) loginRes()         {}
+func (*ValidationError) registerUserRes()  {}

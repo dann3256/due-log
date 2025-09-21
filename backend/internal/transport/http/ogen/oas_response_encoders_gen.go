@@ -11,12 +11,12 @@ import (
 	"go.opentelemetry.io/otel/trace"
 )
 
-func encodeGetUserResponse(response GetUserRes, w http.ResponseWriter, span trace.Span) error {
+func encodeCreateCompanyResponse(response CreateCompanyRes, w http.ResponseWriter, span trace.Span) error {
 	switch response := response.(type) {
-	case *UserResponse:
+	case *CompanyResponse:
 		w.Header().Set("Content-Type", "application/json; charset=utf-8")
-		w.WriteHeader(200)
-		span.SetStatus(codes.Ok, http.StatusText(200))
+		w.WriteHeader(201)
+		span.SetStatus(codes.Ok, http.StatusText(201))
 
 		e := new(jx.Encoder)
 		response.Encode(e)
@@ -26,23 +26,10 @@ func encodeGetUserResponse(response GetUserRes, w http.ResponseWriter, span trac
 
 		return nil
 
-	case *UnauthorizedError:
+	case *ValidationError:
 		w.Header().Set("Content-Type", "application/json; charset=utf-8")
-		w.WriteHeader(401)
-		span.SetStatus(codes.Error, http.StatusText(401))
-
-		e := new(jx.Encoder)
-		response.Encode(e)
-		if _, err := e.WriteTo(w); err != nil {
-			return errors.Wrap(err, "write")
-		}
-
-		return nil
-
-	case *ForbiddenError:
-		w.Header().Set("Content-Type", "application/json; charset=utf-8")
-		w.WriteHeader(403)
-		span.SetStatus(codes.Error, http.StatusText(403))
+		w.WriteHeader(400)
+		span.SetStatus(codes.Error, http.StatusText(400))
 
 		e := new(jx.Encoder)
 		response.Encode(e)

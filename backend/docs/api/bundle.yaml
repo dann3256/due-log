@@ -47,22 +47,21 @@ paths:
           $ref: '#/components/responses/ForbiddenError'
         '500':
           $ref: '#/components/responses/InternalServerError'
-  /me:
-    get:
-      summary: Get  user profile
-      description: Get the profile of the currently authenticated user
-      operationId: get User
+  /createcompany:
+    post:
+      summary: Create a new company
+      description: Create a new company record
+      operationId: CreateCompany
       tags:
-        - User
-      security:
-        - bearerAuth: []
+        - Company
+      requestBody:
+        required: true
+        $ref: '#/components/requestBodies/CreateCompanyRequest'
       responses:
-        '200':
-          $ref: '#/components/responses/UserResponse'
-        '401':
-          $ref: '#/components/responses/UnauthorizedError'
-        '403':
-          $ref: '#/components/responses/ForbiddenError'
+        '201':
+          $ref: '#/components/responses/CompanyResponse'
+        '400':
+          $ref: '#/components/responses/ValidationError'
         '500':
           $ref: '#/components/responses/InternalServerError'
 components:
@@ -127,6 +126,8 @@ components:
         message:
           type: string
           example: You do not have permission to access this resource.
+    credit_limit:
+      type: integer
   requestBodies:
     RegisterRequest:
       required: true
@@ -162,6 +163,20 @@ components:
               - name
               - email
               - password_hash
+    CreateCompanyRequest:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              name:
+                type: string
+              credit_limit:
+                type: integer
+            required:
+              - name
+              - credit_limit
   responses:
     UserResponse:
       content:
@@ -226,3 +241,19 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/ForbiddenError'
+    CompanyResponse:
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              id:
+                $ref: '#/components/schemas/id'
+              name:
+                $ref: '#/components/schemas/name'
+              credit_limit:
+                $ref: '#/components/schemas/credit_limit'
+            required:
+              - id
+              - name
+              - credit_limit

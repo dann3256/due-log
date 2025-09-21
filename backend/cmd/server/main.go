@@ -2,38 +2,57 @@ package main
 
 import (
     "context"
-    "errors"
     "fmt"
     "log"
     "os"
     "net/http"
     "github.com/dann3256/due-log/backend/internal/infrastructure/db/sqlc"
     "github.com/dann3256/due-log/backend/internal/transport/http/ogen"
-    "github.com/dann3256/due-log/backend/internal/user/handler"
-    "github.com/dann3256/due-log/backend/internal/user/repository"
-    "github.com/dann3256/due-log/backend/internal/user/usecase"
+    user_handler "github.com/dann3256/due-log/backend/internal/user/handler"
+    user_uc "github.com/dann3256/due-log/backend/internal/user/usecase"
+    user_repo "github.com/dann3256/due-log/backend/internal/user/repository"
+
+    company_handler "github.com/dann3256/due-log/backend/internal/company/handler"
+    company_uc "github.com/dann3256/due-log/backend/internal/company/usecase"
+    company_repo "github.com/dann3256/due-log/backend/internal/company/repository"
+
     "github.com/jackc/pgx/v5/pgxpool"
      _"github.com/lib/pq" // PostgreSQLドライバ
      _"github.com/golang-jwt/jwt/v5"
     "github.com/dann3256/due-log/backend/pkg/jwt"
-     "github.com/golang-migrate/migrate/v4"
+    "github.com/golang-migrate/migrate/v4"
      _ "github.com/golang-migrate/migrate/v4/database/postgres" // PostgreSQL用のドライバ
      _ "github.com/golang-migrate/migrate/v4/source/file"       // ファイルからマイグレーションを読み込むためのドライバ
 )
 
-type SecurityHandler struct{}
-
-// HandleBearerAuth は Bearer トークン認証を処理する
-func (s *SecurityHandler) HandleBearerAuth(ctx context.Context, operationName openapi.OperationName, t openapi.BearerAuth) (context.Context, error) {
-    // Bearer トークンの認証ロジックを実装
-    if t.Token == "" {
-        return ctx, errors.New("missing token")
-    }
-
-    // 仮の認証成功ロジック
-    // 必要に応じてトークンを検証し、ユーザー情報をコンテキストに追加
-    return ctx, nil
+// 統合ハンドラー インターフェースを完全に実装
+type RootHandler struct {
+	userHandler    *user_handler.UserHandler
+	companyHandler *company_handler.CompanyHandler
 }
+
+// RootHandler - 統合ハンドラーのコンストラクタ
+func NewAPIHandler(userHandler *user_handler.UserHandler, companyHandler *company_handler.CompanyHandler) *RootHandler {
+	return &RootHandler{
+		userHandler:    userHandler,
+		companyHandler: companyHandler,
+	}
+}
+func (h *RootHandler) RegisterUser(ctx context.Context, req *openapi.RegisterUserReq) (openapi.RegisterUserRes, error) {
+	return h.userHandler.RegisterUser(ctx, req)
+}
+
+func (h *RootHandler) Login(ctx context.Context, req *openapi.LoginReq) (openapi.LoginRes, error) {
+	return h.userHandler.Login(ctx, req)
+}
+
+// Company関連のメソッドを統合ハンドラーに委譲
+func (h *RootHandler) CreateCompany(ctx context.Context, req *openapi.CreateCompanyReq) (openapi.CreateCompanyRes, error) {
+	return h.companyHandler.CreateCompany(ctx, req)
+}
+// HandleBearerAuth は Bearer トークン認証を処理する
+
+
 
 func main() {
     // データベース接続情報
@@ -43,7 +62,6 @@ func main() {
     if dsn == "" {
         log.Fatal("DB_SOURCE environment variable not set")
     }
-
 
 
     log.Println("データベースマイグレーションを開始します...")
@@ -82,48 +100,33 @@ func main() {
     if err != nil {
         log.Fatalf("Failed to create JWT Manager: %v", err)
     }
-
     // 各レイヤーを作成
     queries := sqlc.New(dbpool)
-    repo := repository.NewRepository(queries)
-    uc := usecase.NewUsecase(repo, jwtManager)
-    h := handler.NewAPIHandler(uc)
+    
+    // User関連
+    userRepo := user_repo.NewRepository(queries)
+    userUsecase := user_uc.NewUsecase(userRepo, jwtManager)
+    userHandler := user_handler.NewAPIHandler(userUsecase) // 具体的な型を返す
 
-    // SecurityHandler を作成
-    secHandler := &SecurityHandler{}
+    // Company関連
+    companyRepo := company_repo.NewCompanyRepository(queries)
+    companyUsecase := company_uc.NewUsecase(companyRepo)
+    companyHandler := company_handler.NewAPIHandler(companyUsecase) // 具体的な型を返す
 
-
-
-     // CORSミドルウェアを作成
-    corsHandler := func(h http.Handler) http.Handler {
-        return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-            // 許可するオリジンを指定します。開発中は "*" ですべて許可することもできます。
-            w.Header().Set("Access-Control-Allow-Origin", "http://localhost:42989") 
-            // プリフライトリクエストで許可するHTTPメソッド
-            w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
-            // プリフライトリクエストで許可するHTTPヘッダー
-            w.Header().Set("Access-Control-Allow-Headers", "Accept, Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization")
-
-            // プリフライトリクエスト(OPTIONS)の場合は、ここで処理を終了
-            if r.Method == "OPTIONS" {
-                return
-            }
-            
-            h.ServeHTTP(w, r)
-        })
-    }
+    // 統合ハンドラーを作成
+    apiHandler := NewAPIHandler(userHandler, companyHandler)
 
 
-    // ogenサーバーを作成
-    srv, err := openapi.NewServer(h, secHandler)
+
+    srv, err := openapi.NewServer(apiHandler)
     if err != nil {
-        log.Fatalf("サーバー作成失敗: %v", err)
+     log.Fatalf("サーバー作成失敗: %v", err)
     }
 
     // HTTPサーバー起動
     port := 8080
     log.Printf("サーバー起動 http://localhost:%d", port)
-    if err := http.ListenAndServe(fmt.Sprintf(":%d", port),  corsHandler(srv)); err != nil {
-        log.Fatalf("サーバー起動失敗: %v", err)
-    }
+    if err := http.ListenAndServe(fmt.Sprintf(":%d", port), srv); err != nil {
+    log.Fatalf("サーバー起動失敗: %v", err)
+   }
 }

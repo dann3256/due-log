@@ -2,24 +2,23 @@ package handler
 
 import (
     "context"
-
-    "github.com/dann3256/IizukaEats-mobile/backend/internal/transport/http/ogen"
-    "github.com/dann3256/IizukaEats-mobile/backend/internal/user/usecase"
+    "github.com/dann3256/due-log/backend/internal/transport/http/ogen"
+    "github.com/dann3256/due-log/backend/internal/user/usecase"
     
 )
 
-type APIHandler struct {
+type UserHandler struct {
     uc usecase.Usecase
 }
 
-func NewAPIHandler(uc usecase.Usecase) openapi.Handler {
-    return &APIHandler{uc: uc}
+func NewAPIHandler(uc usecase.Usecase) *UserHandler {
+    return &UserHandler{uc: uc}
 }
 
 // ==================================================メソッド実装===============================================
 
 //  /register のリクエストを処理する
-func (h *APIHandler) RegisterUser(ctx context.Context, req *openapi.RegisterUserReq) (openapi.RegisterUserRes, error) {
+func (h *UserHandler) RegisterUser(ctx context.Context, req *openapi.RegisterUserReq) (openapi.RegisterUserRes, error) {
 
     // 1. リクエストをDTOに変換
     registerdto := &usecase.CreateUserInputDTO{
@@ -45,7 +44,7 @@ func (h *APIHandler) RegisterUser(ctx context.Context, req *openapi.RegisterUser
 
 
 //  /login のリクエストを処理する
-func (h *APIHandler) Login(ctx context.Context, req *openapi.LoginReq) (openapi.LoginRes, error) {
+func (h *UserHandler) Login(ctx context.Context, req *openapi.LoginReq) (openapi.LoginRes, error) {
     
     // 1. リクエストをDTOに変換
     logindto := &usecase.LoginInputDTO{
@@ -65,16 +64,3 @@ func (h *APIHandler) Login(ctx context.Context, req *openapi.LoginReq) (openapi.
    }
     return response, nil
 }
-
-
-
-// GetUser は /me のリクエストを処理する（未実装）
-func (h *APIHandler) GetUser(ctx context.Context) (openapi.GetUserRes, error) {
-    // 必要に応じてデータを取得してレスポンスを構築
-    return &openapi.UserResponse{
-        Name:         openapi.Name("John Doe"),
-        Email:        openapi.Email("john.doe@example.com"),
-        
-    }, nil
-}
-

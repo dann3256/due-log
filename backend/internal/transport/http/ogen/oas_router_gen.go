@@ -60,6 +60,26 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 				break
 			}
 			switch elem[0] {
+			case 'c': // Prefix: "createcompany"
+
+				if l := len("createcompany"); len(elem) >= l && elem[0:l] == "createcompany" {
+					elem = elem[l:]
+				} else {
+					break
+				}
+
+				if len(elem) == 0 {
+					// Leaf node.
+					switch r.Method {
+					case "POST":
+						s.handleCreateCompanyRequest([0]string{}, elemIsEscaped, w, r)
+					default:
+						s.notAllowed(w, r, "POST")
+					}
+
+					return
+				}
+
 			case 'l': // Prefix: "login"
 
 				if l := len("login"); len(elem) >= l && elem[0:l] == "login" {
@@ -75,26 +95,6 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 						s.handleLoginRequest([0]string{}, elemIsEscaped, w, r)
 					default:
 						s.notAllowed(w, r, "POST")
-					}
-
-					return
-				}
-
-			case 'm': // Prefix: "me"
-
-				if l := len("me"); len(elem) >= l && elem[0:l] == "me" {
-					elem = elem[l:]
-				} else {
-					break
-				}
-
-				if len(elem) == 0 {
-					// Leaf node.
-					switch r.Method {
-					case "GET":
-						s.handleGetUserRequest([0]string{}, elemIsEscaped, w, r)
-					default:
-						s.notAllowed(w, r, "GET")
 					}
 
 					return
@@ -214,6 +214,30 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 				break
 			}
 			switch elem[0] {
+			case 'c': // Prefix: "createcompany"
+
+				if l := len("createcompany"); len(elem) >= l && elem[0:l] == "createcompany" {
+					elem = elem[l:]
+				} else {
+					break
+				}
+
+				if len(elem) == 0 {
+					// Leaf node.
+					switch method {
+					case "POST":
+						r.name = CreateCompanyOperation
+						r.summary = "Create a new company"
+						r.operationID = "CreateCompany"
+						r.pathPattern = "/createcompany"
+						r.args = args
+						r.count = 0
+						return r, true
+					default:
+						return
+					}
+				}
+
 			case 'l': // Prefix: "login"
 
 				if l := len("login"); len(elem) >= l && elem[0:l] == "login" {
@@ -230,30 +254,6 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 						r.summary = "Login user"
 						r.operationID = "login"
 						r.pathPattern = "/login"
-						r.args = args
-						r.count = 0
-						return r, true
-					default:
-						return
-					}
-				}
-
-			case 'm': // Prefix: "me"
-
-				if l := len("me"); len(elem) >= l && elem[0:l] == "me" {
-					elem = elem[l:]
-				} else {
-					break
-				}
-
-				if len(elem) == 0 {
-					// Leaf node.
-					switch method {
-					case "GET":
-						r.name = GetUserOperation
-						r.summary = "Get  user profile"
-						r.operationID = "get User"
-						r.pathPattern = "/me"
 						r.args = args
 						r.count = 0
 						return r, true

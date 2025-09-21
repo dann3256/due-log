@@ -13,12 +13,12 @@ type UnimplementedHandler struct{}
 
 var _ Handler = UnimplementedHandler{}
 
-// GetUser implements get User operation.
+// CreateCompany implements CreateCompany operation.
 //
-// Get the profile of the currently authenticated user.
+// Create a new company record.
 //
-// GET /me
-func (UnimplementedHandler) GetUser(ctx context.Context) (r GetUserRes, _ error) {
+// POST /createcompany
+func (UnimplementedHandler) CreateCompany(ctx context.Context, req *CreateCompanyReq) (r CreateCompanyRes, _ error) {
 	return r, ht.ErrNotImplemented
 }
 

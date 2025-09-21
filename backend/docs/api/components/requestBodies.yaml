@@ -35,3 +35,18 @@ components:
               - name
               - email
               - password_hash
+    CreateCompanyRequest:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              name:
+                type: string
+              credit_limit:
+                type: integer
+                
+            required: 
+              - name
+              - credit_limit

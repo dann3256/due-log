@@ -8,12 +8,12 @@ import (
 
 // Handler handles operations described by OpenAPI v3 specification.
 type Handler interface {
-	// GetUser implements get User operation.
+	// CreateCompany implements CreateCompany operation.
 	//
-	// Get the profile of the currently authenticated user.
+	// Create a new company record.
 	//
-	// GET /me
-	GetUser(ctx context.Context) (GetUserRes, error)
+	// POST /createcompany
+	CreateCompany(ctx context.Context, req *CreateCompanyReq) (CreateCompanyRes, error)
 	// Login implements login operation.
 	//
 	// Authenticate user and return JWT token.
@@ -31,20 +31,18 @@ type Handler interface {
 // Server implements http server based on OpenAPI v3 specification and
 // calls Handler to handle requests.
 type Server struct {
-	h   Handler
-	sec SecurityHandler
+	h Handler
 	baseServer
 }
 
 // NewServer creates new Server.
-func NewServer(h Handler, sec SecurityHandler, opts ...ServerOption) (*Server, error) {
+func NewServer(h Handler, opts ...ServerOption) (*Server, error) {
 	s, err := newServerConfig(opts...).baseServer()
 	if err != nil {
 		return nil, err
 	}
 	return &Server{
 		h:          h,
-		sec:        sec,
 		baseServer: s,
 	}, nil
 }

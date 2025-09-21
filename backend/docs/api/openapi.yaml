@@ -59,21 +59,22 @@ paths:
         "500":
           $ref: "./components/errors.yaml#/components/responses/InternalServerError"
 
-  /me:
-    get:
-      summary: Get  user profile
-      description: Get the profile of the currently authenticated user
-      operationId: get User
+  /createcompany:
+    post:
+      summary: Create a new company
+      description: Create a new company record
+      operationId: CreateCompany
       tags:
-        - User
-      security:
-        - bearerAuth: []
+        - Company
+      requestBody:
+          required: true
+          $ref: "./components/requestBodies.yaml#/components/requestBodies/CreateCompanyRequest"
       responses:
-        "200":
-          $ref: "./components/responseBodies.yaml#/components/responses/UserResponse"
-        "401":
-          $ref: "./components/errors.yaml#/components/responses/UnauthorizedError"
-        "403":
-          $ref: "./components/errors.yaml#/components/responses/ForbiddenError"
+        "201": 
+         $ref: "./components/responseBodies.yaml#/components/responses/CompanyResponse"
+          
+        "400":
+          $ref: "./components/errors.yaml#/components/responses/ValidationError"
         "500":
           $ref: "./components/errors.yaml#/components/responses/InternalServerError"
+        

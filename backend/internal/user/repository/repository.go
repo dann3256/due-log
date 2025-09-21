@@ -3,8 +3,8 @@ package repository
 
 import (
 	"context"
-	"github.com/dann3256/IizukaEats-mobile/backend/internal/infrastructure/db/sqlc" // あなたのプロジェクトのパスに合わせてください
-	"github.com/dann3256/IizukaEats-mobile/backend/internal/user/domain" // あなたのプロジェクトのパスに合わせてください
+	"github.com/dann3256/due-log/backend/internal/infrastructure/db/sqlc" // あなたのプロジェクトのパスに合わせてください
+	"github.com/dann3256/due-log/backend/internal/user/domain" // あなたのプロジェクトのパスに合わせてください
 )
 
 type Repository interface {
@@ -57,4 +57,6 @@ func (r *repositoryImpl) GetUserByEmail(ctx context.Context, email string) (*dom
         Email:        getbyemail.Email,
         PasswordHash: getbyemail.PasswordHash,
     }, nil
+
 }
+
