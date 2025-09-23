@@ -23,6 +23,7 @@ import (
     "github.com/golang-migrate/migrate/v4"
      _ "github.com/golang-migrate/migrate/v4/database/postgres" // PostgreSQL用のドライバ
      _ "github.com/golang-migrate/migrate/v4/source/file"       // ファイルからマイグレーションを読み込むためのドライバ
+     "github.com/rs/cors"
 )
 
 // 統合ハンドラー インターフェースを完全に実装
@@ -123,10 +124,19 @@ func main() {
      log.Fatalf("サーバー作成失敗: %v", err)
     }
 
+    corsHandler := cors.New(cors.Options{
+		// 許可するフロントエンドのURL
+		AllowedOrigins:   []string{"http://localhost:5173"}, 
+		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type"},
+		AllowCredentials: true,
+	})
+
     // HTTPサーバー起動
     port := 8080
     log.Printf("サーバー起動 http://localhost:%d", port)
-    if err := http.ListenAndServe(fmt.Sprintf(":%d", port), srv); err != nil {
-    log.Fatalf("サーバー起動失敗: %v", err)
-   }
+    // ✅ http.ListenAndServeの第2引数を、CORSハンドラでラップしたものに変更
+	if err := http.ListenAndServe(fmt.Sprintf(":%d", port), corsHandler.Handler(srv)); err != nil {
+		log.Fatalf("サーバー起動失敗: %v", err)
+	}
 }
