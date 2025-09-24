@@ -1,50 +1,41 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import { 
+  TextInput, 
+  PasswordInput, 
+  Button, 
+  Paper, 
+  Title, 
+  Container, 
+  Text,
+  Anchor,
+  Stack,
+  Alert,
+  Box, // Boxコンポーネントを追加
+} from '@mantine/core';
+import { IconAlertCircle } from '@tabler/icons-react';
 
 function LoginPage() {
-  // フォームの入力値を保存するための state
-  const [name, setName]= useState('');
+  const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
-  
-  // ページ遷移を使うための hook
   const navigate = useNavigate();
 
-  // フォームが送信されたときの処理
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault(); // フォーム送信時の画面リロードを防ぐ
-    setError(''); // エラーメッセージをリセット
-
+    e.preventDefault();
+    setError('');
     try {
-      // Goで作成したAPIサーバーのエンドポイントを指定
-      // ポート番号などはご自身の環境に合わせて変更してください
       const response = await axios.post('http://localhost:8080/login', {
         name: name,
         email: email,
         password_hash: password,
       });
-
-      // 1. サーバーから返ってきた全データを表示
-      console.log('サーバーからの応答:', response);
-
-      // 2. 応答の中の 'data' プロパティを表示
-      console.log('応答データ (response.data):', response.data);
-      
-      // 3. accessTokenの存在を確認
-      console.log('accessTokenの値:', response.data.accessToken);
-
-
-    
-        // 受け取ったJWTトークンをブラウザのLocalStorageに保存
-       if (response.data.accessToken) {
-        // accessToken と refreshToken の両方をLocalStorageに保存
+      if (response.data.accessToken) {
         localStorage.setItem('accessToken', response.data.accessToken);
         localStorage.setItem('refreshToken', response.data.refreshToken);
-        
-        // ログイン成功後、ホームページに遷移
-        navigate('/');
+        navigate('/home');
       }
     } catch (err) {
       console.error('Login failed:', err);
@@ -53,43 +44,43 @@ function LoginPage() {
   };
 
   return (
-    <div>
-      <h2>ログイン</h2>
-      <form onSubmit={handleSubmit}>
-        <div>
-          <label>name:</label>
-          <input
-            type="name"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            required
-          />
-        </div>
-        <div>
-          <label>Email:</label>
-          <input
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-          />
-        </div>
-        <div>
-          <label>Password:</label>
-          <input
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-          />
-        </div>
-        {error && <p style={{ color: 'red' }}>{error}</p>}
-        <button type="submit">ログイン</button>
-      </form>
-      <p>
-        アカウントをお持ちでないですか？ <a href="/register">新規登録</a>
-      </p>
-    </div>
+    // WelcomePageと同じBoxで全体を囲む
+    <Box
+      style={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        minHeight: '100vh',
+        background: 'linear-gradient(135deg, #1E293B 0%, #0F172A 100%)',
+      }}
+    >
+      <Container size={420} my={40}>
+        {/* 文字色を白に変更 */}
+        <Title ta="center" c="white"> 
+          ログインはこちら
+        </Title>
+        <Text c="dimmed" size="sm" ta="center" mt={5}>
+          アカウントをお持ちでないですか？{' '}
+          <Anchor size="sm" component="a" href="/register">
+            新規登録
+          </Anchor>
+        </Text>
+
+        <Paper withBorder shadow="md" p={30} mt={30} radius="md">
+          <form onSubmit={handleSubmit}>
+            <Stack>
+              <TextInput required label="Name" placeholder="Your name" value={name} onChange={(event) => setName(event.currentTarget.value)} radius="md"/>
+              <TextInput required label="Email" placeholder="hello@mantine.dev" value={email} onChange={(event) => setEmail(event.currentTarget.value)} radius="md"/>
+              <PasswordInput required label="Password" placeholder="Your password" value={password} onChange={(event) => setPassword(event.currentTarget.value)} radius="md"/>
+            </Stack>
+            {error && ( <Alert icon={<IconAlertCircle size="1rem" />} title="エラー" color="red" mt="md" radius="md">{error}</Alert> )}
+            <Button fullWidth mt="xl" type="submit" radius="md">
+              ログイン
+            </Button>
+          </form>
+        </Paper>
+      </Container>
+    </Box>
   );
 }
 

@@ -63,6 +63,10 @@ button:focus-visible {
     color: #747bff;
   }
   button {
-    background-color: #f9f9f9;
+    background-color: #55544bd3;
   }
+}
+
+body {
+  background-color: #3e3d3c; /* ここに好きなレトロな色を設定 */
 }
