@@ -8,12 +8,30 @@ import (
 
 // Handler handles operations described by OpenAPI v3 specification.
 type Handler interface {
+	// CreateBill implements CreateBill operation.
+	//
+	// Create a bill.
+	//
+	// POST /bill
+	CreateBill(ctx context.Context, req *CreateBillReq) (CreateBillRes, error)
 	// CreateCompany implements CreateCompany operation.
 	//
 	// Create a new company record.
 	//
-	// POST /createcompany
+	// POST /company
 	CreateCompany(ctx context.Context, req *CreateCompanyReq) (CreateCompanyRes, error)
+	// GetBills implements GetBills operation.
+	//
+	// Get Bill.
+	//
+	// GET /bills
+	GetBills(ctx context.Context, params GetBillsParams) (GetBillsRes, error)
+	// GetCompanyName implements GetCompanyName operation.
+	//
+	// Get company-name.
+	//
+	// GET /company
+	GetCompanyName(ctx context.Context) (GetCompanyNameRes, error)
 	// Login implements login operation.
 	//
 	// Authenticate user and return JWT token.

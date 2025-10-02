@@ -28,8 +28,31 @@ func (h *CompanyHandler)CreateCompany(ctx context.Context, req *openapi.CreateCo
 	response := &openapi.CompanyResponse{
 		ID:openapi.ID(dtoCompany.ID),
 		Name:openapi.Name(dtoCompany.Name),
-		CreditLimit: openapi.CreditLimit(dtoCompany.Creditlimit),
+		CreditLimit: openapi.CreditLimit(dtoCompany.CreditLimit),
 
 	}
 	return response,nil
+}
+
+func (h *CompanyHandler) GetCompanyName(ctx context.Context) (openapi.GetCompanyNameRes, error) {
+	// 1. UseCaseから会社情報のDTOスライスを取得
+	companyDTOs, err := h.uc.GetName(ctx)
+	if err != nil {
+		return nil, err
+	}
+	// 2. レスポンス用のスライスを初期化
+	// var names []openapi.Name と同じ
+	names := make([]openapi.Name, 0, len(companyDTOs))
+	// 3. DTOスライスをループして、レスポンス用のnameスライスに変換・追加
+	for _, dto := range companyDTOs {
+		if dto != nil { // nilポインタでないことを確認
+			names = append(names, openapi.Name(dto.Name))
+		}
+	}
+	// 4. 変換したスライスを使って最終的なレスポンスオブジェクトを構築
+	response := &openapi.CompanyNameResponse{
+		Names: names,
+	}
+
+	return response, nil
 }

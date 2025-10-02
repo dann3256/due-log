@@ -24,6 +24,14 @@ func (s Email) Validate() error {
 	return nil
 }
 
+func (s GetBillsOKApplicationJSON) Validate() error {
+	alias := ([]Bills)(s)
+	if alias == nil {
+		return errors.New("nil is invalid value")
+	}
+	return nil
+}
+
 func (s *LoginReq) Validate() error {
 	if s == nil {
 		return validate.ErrNilPointer

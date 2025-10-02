@@ -60,9 +60,50 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 				break
 			}
 			switch elem[0] {
-			case 'c': // Prefix: "createcompany"
+			case 'b': // Prefix: "bill"
 
-				if l := len("createcompany"); len(elem) >= l && elem[0:l] == "createcompany" {
+				if l := len("bill"); len(elem) >= l && elem[0:l] == "bill" {
+					elem = elem[l:]
+				} else {
+					break
+				}
+
+				if len(elem) == 0 {
+					switch r.Method {
+					case "POST":
+						s.handleCreateBillRequest([0]string{}, elemIsEscaped, w, r)
+					default:
+						s.notAllowed(w, r, "POST")
+					}
+
+					return
+				}
+				switch elem[0] {
+				case 's': // Prefix: "s"
+
+					if l := len("s"); len(elem) >= l && elem[0:l] == "s" {
+						elem = elem[l:]
+					} else {
+						break
+					}
+
+					if len(elem) == 0 {
+						// Leaf node.
+						switch r.Method {
+						case "GET":
+							s.handleGetBillsRequest([0]string{}, elemIsEscaped, w, r)
+						default:
+							s.notAllowed(w, r, "GET")
+						}
+
+						return
+					}
+
+				}
+
+			case 'c': // Prefix: "company"
+
+				if l := len("company"); len(elem) >= l && elem[0:l] == "company" {
 					elem = elem[l:]
 				} else {
 					break
@@ -71,10 +112,12 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 				if len(elem) == 0 {
 					// Leaf node.
 					switch r.Method {
+					case "GET":
+						s.handleGetCompanyNameRequest([0]string{}, elemIsEscaped, w, r)
 					case "POST":
 						s.handleCreateCompanyRequest([0]string{}, elemIsEscaped, w, r)
 					default:
-						s.notAllowed(w, r, "POST")
+						s.notAllowed(w, r, "GET,POST")
 					}
 
 					return
@@ -214,9 +257,58 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 				break
 			}
 			switch elem[0] {
-			case 'c': // Prefix: "createcompany"
+			case 'b': // Prefix: "bill"
 
-				if l := len("createcompany"); len(elem) >= l && elem[0:l] == "createcompany" {
+				if l := len("bill"); len(elem) >= l && elem[0:l] == "bill" {
+					elem = elem[l:]
+				} else {
+					break
+				}
+
+				if len(elem) == 0 {
+					switch method {
+					case "POST":
+						r.name = CreateBillOperation
+						r.summary = "Create a bill"
+						r.operationID = "CreateBill"
+						r.pathPattern = "/bill"
+						r.args = args
+						r.count = 0
+						return r, true
+					default:
+						return
+					}
+				}
+				switch elem[0] {
+				case 's': // Prefix: "s"
+
+					if l := len("s"); len(elem) >= l && elem[0:l] == "s" {
+						elem = elem[l:]
+					} else {
+						break
+					}
+
+					if len(elem) == 0 {
+						// Leaf node.
+						switch method {
+						case "GET":
+							r.name = GetBillsOperation
+							r.summary = "Get Bill"
+							r.operationID = "GetBills"
+							r.pathPattern = "/bills"
+							r.args = args
+							r.count = 0
+							return r, true
+						default:
+							return
+						}
+					}
+
+				}
+
+			case 'c': // Prefix: "company"
+
+				if l := len("company"); len(elem) >= l && elem[0:l] == "company" {
 					elem = elem[l:]
 				} else {
 					break
@@ -225,11 +317,19 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 				if len(elem) == 0 {
 					// Leaf node.
 					switch method {
+					case "GET":
+						r.name = GetCompanyNameOperation
+						r.summary = "Get company-name"
+						r.operationID = "GetCompanyName"
+						r.pathPattern = "/company"
+						r.args = args
+						r.count = 0
+						return r, true
 					case "POST":
 						r.name = CreateCompanyOperation
 						r.summary = "Create a new company"
 						r.operationID = "CreateCompany"
-						r.pathPattern = "/createcompany"
+						r.pathPattern = "/company"
 						r.args = args
 						r.count = 0
 						return r, true

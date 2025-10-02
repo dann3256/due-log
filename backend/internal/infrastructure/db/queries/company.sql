@@ -8,3 +8,6 @@ SELECT id, name, credit_limit
 FROM company
 WHERE name = $1;
 
+-- name: GetName :many
+SELECT name
+FROM company;

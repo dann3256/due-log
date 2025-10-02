@@ -50,3 +50,45 @@ components:
               - id
               - name
               - credit_limit
+    
+    CompanyNameResponse:
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              names:
+               type: array
+               items:
+                $ref: "./schemas.yaml#/components/schemas/Company/properties/name"
+            required: 
+              - id
+              - name
+    
+    BillResponse:
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              id:
+                $ref: "./schemas.yaml#/components/schemas/Bill/properties/id"
+              name:
+                $ref: "./schemas.yaml#/components/schemas/Bill/properties/name"
+              credit:
+                $ref: "./schemas.yaml#/components/schemas/Bill/properties/credit"
+              credit_date:
+                $ref: "./schemas.yaml#/components/schemas/Bill/properties/credit_date"
+            required: 
+              - id
+              - name
+              - credit
+              - credit_date
+            
+    BillsResponse:
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+               $ref: "./schemas.yaml#/components/schemas/Bills" 

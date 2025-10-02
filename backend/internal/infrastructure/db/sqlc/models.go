@@ -5,15 +5,24 @@
 package sqlc
 
 import (
-	"github.com/jackc/pgx/v5/pgtype"
+	"time"
 )
+
+type Bill struct {
+	ID         int32
+	Name       string
+	Credit     int32
+	CreditDate time.Time
+	CreatedAt  time.Time
+	UpdatedAt  time.Time
+}
 
 type Company struct {
 	ID          int32
 	Name        string
 	CreditLimit int32
-	CreatedAt   pgtype.Timestamptz
-	UpdatedAt   pgtype.Timestamptz
+	CreatedAt   time.Time
+	UpdatedAt   time.Time
 }
 
 type User struct {
@@ -21,6 +30,6 @@ type User struct {
 	Name         string
 	Email        string
 	PasswordHash string
-	CreatedAt    pgtype.Timestamptz
-	UpdatedAt    pgtype.Timestamptz
+	CreatedAt    time.Time
+	UpdatedAt    time.Time
 }

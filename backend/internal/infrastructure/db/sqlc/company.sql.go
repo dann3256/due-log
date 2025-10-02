@@ -51,3 +51,28 @@ func (q *Queries) GetCompanyByName(ctx context.Context, name string) (GetCompany
 	err := row.Scan(&i.ID, &i.Name, &i.CreditLimit)
 	return i, err
 }
+
+const getName = `-- name: GetName :many
+SELECT name
+FROM company
+`
+
+func (q *Queries) GetName(ctx context.Context) ([]string, error) {
+	rows, err := q.db.Query(ctx, getName)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []string
+	for rows.Next() {
+		var name string
+		if err := rows.Scan(&name); err != nil {
+			return nil, err
+		}
+		items = append(items, name)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}

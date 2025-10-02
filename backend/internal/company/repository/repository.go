@@ -8,6 +8,7 @@ import (
 
 type CompanyRepository interface {
 	CreateCompany(ctx context.Context, company *domain.Company) (*domain.Company, error)
+	GetName(ctx context.Context) ([]string, error)
 }
 
 type CompanyRepositoryImpl struct {
@@ -23,7 +24,7 @@ func (r *CompanyRepositoryImpl) CreateCompany(ctx context.Context, company *doma
 	// domain.Company -> sqlc.CreateCompanyParams への変換
 	params := sqlc.CreateCompanyParams{
 		Name:        company.Name,
-		CreditLimit: company.Creditlimit,
+		CreditLimit: company.CreditLimit,
 	}
 	createdSQLCompany, err := r.q.CreateCompany(ctx, params)
 	if err != nil {
@@ -33,6 +34,14 @@ func (r *CompanyRepositoryImpl) CreateCompany(ctx context.Context, company *doma
 	return &domain.Company{
 		ID:          createdSQLCompany.ID,
 		Name:        createdSQLCompany.Name,
-		Creditlimit: createdSQLCompany.CreditLimit,
+		CreditLimit: createdSQLCompany.CreditLimit,
 	}, nil
+}
+
+func(r *CompanyRepositoryImpl)GetName(ctx context.Context) ([]string, error) {
+	getCompanyName, err := r.q.GetName(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return getCompanyName, nil
 }

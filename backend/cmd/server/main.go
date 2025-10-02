@@ -8,6 +8,7 @@ import (
     "net/http"
     "github.com/dann3256/due-log/backend/internal/infrastructure/db/sqlc"
     "github.com/dann3256/due-log/backend/internal/transport/http/ogen"
+    
     user_handler "github.com/dann3256/due-log/backend/internal/user/handler"
     user_uc "github.com/dann3256/due-log/backend/internal/user/usecase"
     user_repo "github.com/dann3256/due-log/backend/internal/user/repository"
@@ -15,6 +16,10 @@ import (
     company_handler "github.com/dann3256/due-log/backend/internal/company/handler"
     company_uc "github.com/dann3256/due-log/backend/internal/company/usecase"
     company_repo "github.com/dann3256/due-log/backend/internal/company/repository"
+
+    bill_handler "github.com/dann3256/due-log/backend/internal/bill/handler"
+    bill_uc "github.com/dann3256/due-log/backend/internal/bill/usecase"
+    bill_repo "github.com/dann3256/due-log/backend/internal/bill/repository"
 
     "github.com/jackc/pgx/v5/pgxpool"
      _"github.com/lib/pq" // PostgreSQLドライバ
@@ -29,13 +34,15 @@ import (
 type RootHandler struct {
 	userHandler    *user_handler.UserHandler
 	companyHandler *company_handler.CompanyHandler
+    billHandler    *bill_handler.BillHandler
 }
 
 // RootHandler - 統合ハンドラーのコンストラクタ
-func NewAPIHandler(userHandler *user_handler.UserHandler, companyHandler *company_handler.CompanyHandler) *RootHandler {
+func NewAPIHandler(userHandler *user_handler.UserHandler, companyHandler *company_handler.CompanyHandler,billHandler *bill_handler.BillHandler) *RootHandler {
 	return &RootHandler{
 		userHandler:    userHandler,
 		companyHandler: companyHandler,
+        billHandler:    billHandler,
 	}
 }
 func (h *RootHandler) RegisterUser(ctx context.Context, req *openapi.RegisterUserReq) (openapi.RegisterUserRes, error) {
@@ -50,8 +57,20 @@ func (h *RootHandler) Login(ctx context.Context, req *openapi.LoginReq) (openapi
 func (h *RootHandler) CreateCompany(ctx context.Context, req *openapi.CreateCompanyReq) (openapi.CreateCompanyRes, error) {
 	return h.companyHandler.CreateCompany(ctx, req)
 }
-// HandleBearerAuth は Bearer トークン認証を処理する
 
+func (h *RootHandler) GetCompanyName(ctx context.Context) (openapi.GetCompanyNameRes, error) {
+    return h.companyHandler.GetCompanyName(ctx)
+}
+
+func (h *RootHandler) CreateBill(ctx context.Context, req *openapi.CreateBillReq) (openapi.CreateBillRes, error) {
+    return h.billHandler.CreateBill(ctx, req)
+}
+
+func (h *RootHandler) GetBills(ctx context.Context, params openapi.GetBillsParams) (openapi.GetBillsRes, error){
+    return h.billHandler.GetBills(ctx, params)
+}
+
+// HandleBearerAuth は Bearer トークン認証を処理する
 
 
 func main() {
@@ -113,8 +132,13 @@ func main() {
     companyUsecase := company_uc.NewUsecase(companyRepo)
     companyHandler := company_handler.NewAPIHandler(companyUsecase) // 具体的な型を返す
 
+    // Bill関連
+     billRepo := bill_repo.NewRepository(queries)
+     billUsecase := bill_uc.NewUsecase(billRepo)
+     billHandler := bill_handler.NewAPIHandler(billUsecase) // 具体的な型を返す
+
     // 統合ハンドラーを作成
-    apiHandler := NewAPIHandler(userHandler, companyHandler)
+    apiHandler := NewAPIHandler(userHandler, companyHandler, billHandler)
 
 
 

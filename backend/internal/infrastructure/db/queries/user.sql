@@ -15,7 +15,6 @@ WHERE id = $1;
 
 
 
-
 -- name: UpdateUser :exec
 UPDATE users
 SET name = $2, email=$3, updated_at = NOW()

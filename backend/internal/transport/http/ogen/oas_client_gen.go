@@ -15,6 +15,7 @@ import (
 	semconv "go.opentelemetry.io/otel/semconv/v1.26.0"
 	"go.opentelemetry.io/otel/trace"
 
+	"github.com/ogen-go/ogen/conv"
 	ht "github.com/ogen-go/ogen/http"
 	"github.com/ogen-go/ogen/otelogen"
 	"github.com/ogen-go/ogen/uri"
@@ -27,12 +28,30 @@ func trimTrailingSlashes(u *url.URL) {
 
 // Invoker invokes operations described by OpenAPI v3 specification.
 type Invoker interface {
+	// CreateBill invokes CreateBill operation.
+	//
+	// Create a bill.
+	//
+	// POST /bill
+	CreateBill(ctx context.Context, request *CreateBillReq) (CreateBillRes, error)
 	// CreateCompany invokes CreateCompany operation.
 	//
 	// Create a new company record.
 	//
-	// POST /createcompany
+	// POST /company
 	CreateCompany(ctx context.Context, request *CreateCompanyReq) (CreateCompanyRes, error)
+	// GetBills invokes GetBills operation.
+	//
+	// Get Bill.
+	//
+	// GET /bills
+	GetBills(ctx context.Context, params GetBillsParams) (GetBillsRes, error)
+	// GetCompanyName invokes GetCompanyName operation.
+	//
+	// Get company-name.
+	//
+	// GET /company
+	GetCompanyName(ctx context.Context) (GetCompanyNameRes, error)
 	// Login invokes login operation.
 	//
 	// Authenticate user and return JWT token.
@@ -90,11 +109,86 @@ func (c *Client) requestURL(ctx context.Context) *url.URL {
 	return u
 }
 
+// CreateBill invokes CreateBill operation.
+//
+// Create a bill.
+//
+// POST /bill
+func (c *Client) CreateBill(ctx context.Context, request *CreateBillReq) (CreateBillRes, error) {
+	res, err := c.sendCreateBill(ctx, request)
+	return res, err
+}
+
+func (c *Client) sendCreateBill(ctx context.Context, request *CreateBillReq) (res CreateBillRes, err error) {
+	otelAttrs := []attribute.KeyValue{
+		otelogen.OperationID("CreateBill"),
+		semconv.HTTPRequestMethodKey.String("POST"),
+		semconv.HTTPRouteKey.String("/bill"),
+	}
+
+	// Run stopwatch.
+	startTime := time.Now()
+	defer func() {
+		// Use floating point division here for higher precision (instead of Millisecond method).
+		elapsedDuration := time.Since(startTime)
+		c.duration.Record(ctx, float64(elapsedDuration)/float64(time.Millisecond), metric.WithAttributes(otelAttrs...))
+	}()
+
+	// Increment request counter.
+	c.requests.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
+
+	// Start a span for this request.
+	ctx, span := c.cfg.Tracer.Start(ctx, CreateBillOperation,
+		trace.WithAttributes(otelAttrs...),
+		clientSpanKind,
+	)
+	// Track stage for error reporting.
+	var stage string
+	defer func() {
+		if err != nil {
+			span.RecordError(err)
+			span.SetStatus(codes.Error, stage)
+			c.errors.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
+		}
+		span.End()
+	}()
+
+	stage = "BuildURL"
+	u := uri.Clone(c.requestURL(ctx))
+	var pathParts [1]string
+	pathParts[0] = "/bill"
+	uri.AddPathParts(u, pathParts[:]...)
+
+	stage = "EncodeRequest"
+	r, err := ht.NewRequest(ctx, "POST", u)
+	if err != nil {
+		return res, errors.Wrap(err, "create request")
+	}
+	if err := encodeCreateBillRequest(request, r); err != nil {
+		return res, errors.Wrap(err, "encode request")
+	}
+
+	stage = "SendRequest"
+	resp, err := c.cfg.Client.Do(r)
+	if err != nil {
+		return res, errors.Wrap(err, "do request")
+	}
+	defer resp.Body.Close()
+
+	stage = "DecodeResponse"
+	result, err := decodeCreateBillResponse(resp)
+	if err != nil {
+		return res, errors.Wrap(err, "decode response")
+	}
+
+	return result, nil
+}
+
 // CreateCompany invokes CreateCompany operation.
 //
 // Create a new company record.
 //
-// POST /createcompany
+// POST /company
 func (c *Client) CreateCompany(ctx context.Context, request *CreateCompanyReq) (CreateCompanyRes, error) {
 	res, err := c.sendCreateCompany(ctx, request)
 	return res, err
@@ -104,7 +198,7 @@ func (c *Client) sendCreateCompany(ctx context.Context, request *CreateCompanyRe
 	otelAttrs := []attribute.KeyValue{
 		otelogen.OperationID("CreateCompany"),
 		semconv.HTTPRequestMethodKey.String("POST"),
-		semconv.HTTPRouteKey.String("/createcompany"),
+		semconv.HTTPRouteKey.String("/company"),
 	}
 
 	// Run stopwatch.
@@ -137,7 +231,7 @@ func (c *Client) sendCreateCompany(ctx context.Context, request *CreateCompanyRe
 	stage = "BuildURL"
 	u := uri.Clone(c.requestURL(ctx))
 	var pathParts [1]string
-	pathParts[0] = "/createcompany"
+	pathParts[0] = "/company"
 	uri.AddPathParts(u, pathParts[:]...)
 
 	stage = "EncodeRequest"
@@ -158,6 +252,168 @@ func (c *Client) sendCreateCompany(ctx context.Context, request *CreateCompanyRe
 
 	stage = "DecodeResponse"
 	result, err := decodeCreateCompanyResponse(resp)
+	if err != nil {
+		return res, errors.Wrap(err, "decode response")
+	}
+
+	return result, nil
+}
+
+// GetBills invokes GetBills operation.
+//
+// Get Bill.
+//
+// GET /bills
+func (c *Client) GetBills(ctx context.Context, params GetBillsParams) (GetBillsRes, error) {
+	res, err := c.sendGetBills(ctx, params)
+	return res, err
+}
+
+func (c *Client) sendGetBills(ctx context.Context, params GetBillsParams) (res GetBillsRes, err error) {
+	otelAttrs := []attribute.KeyValue{
+		otelogen.OperationID("GetBills"),
+		semconv.HTTPRequestMethodKey.String("GET"),
+		semconv.HTTPRouteKey.String("/bills"),
+	}
+
+	// Run stopwatch.
+	startTime := time.Now()
+	defer func() {
+		// Use floating point division here for higher precision (instead of Millisecond method).
+		elapsedDuration := time.Since(startTime)
+		c.duration.Record(ctx, float64(elapsedDuration)/float64(time.Millisecond), metric.WithAttributes(otelAttrs...))
+	}()
+
+	// Increment request counter.
+	c.requests.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
+
+	// Start a span for this request.
+	ctx, span := c.cfg.Tracer.Start(ctx, GetBillsOperation,
+		trace.WithAttributes(otelAttrs...),
+		clientSpanKind,
+	)
+	// Track stage for error reporting.
+	var stage string
+	defer func() {
+		if err != nil {
+			span.RecordError(err)
+			span.SetStatus(codes.Error, stage)
+			c.errors.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
+		}
+		span.End()
+	}()
+
+	stage = "BuildURL"
+	u := uri.Clone(c.requestURL(ctx))
+	var pathParts [1]string
+	pathParts[0] = "/bills"
+	uri.AddPathParts(u, pathParts[:]...)
+
+	stage = "EncodeQueryParams"
+	q := uri.NewQueryEncoder()
+	{
+		// Encode "credit_date" parameter.
+		cfg := uri.QueryParameterEncodingConfig{
+			Name:    "credit_date",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.EncodeParam(cfg, func(e uri.Encoder) error {
+			return e.EncodeValue(conv.DateToString(params.CreditDate))
+		}); err != nil {
+			return res, errors.Wrap(err, "encode query")
+		}
+	}
+	u.RawQuery = q.Values().Encode()
+
+	stage = "EncodeRequest"
+	r, err := ht.NewRequest(ctx, "GET", u)
+	if err != nil {
+		return res, errors.Wrap(err, "create request")
+	}
+
+	stage = "SendRequest"
+	resp, err := c.cfg.Client.Do(r)
+	if err != nil {
+		return res, errors.Wrap(err, "do request")
+	}
+	defer resp.Body.Close()
+
+	stage = "DecodeResponse"
+	result, err := decodeGetBillsResponse(resp)
+	if err != nil {
+		return res, errors.Wrap(err, "decode response")
+	}
+
+	return result, nil
+}
+
+// GetCompanyName invokes GetCompanyName operation.
+//
+// Get company-name.
+//
+// GET /company
+func (c *Client) GetCompanyName(ctx context.Context) (GetCompanyNameRes, error) {
+	res, err := c.sendGetCompanyName(ctx)
+	return res, err
+}
+
+func (c *Client) sendGetCompanyName(ctx context.Context) (res GetCompanyNameRes, err error) {
+	otelAttrs := []attribute.KeyValue{
+		otelogen.OperationID("GetCompanyName"),
+		semconv.HTTPRequestMethodKey.String("GET"),
+		semconv.HTTPRouteKey.String("/company"),
+	}
+
+	// Run stopwatch.
+	startTime := time.Now()
+	defer func() {
+		// Use floating point division here for higher precision (instead of Millisecond method).
+		elapsedDuration := time.Since(startTime)
+		c.duration.Record(ctx, float64(elapsedDuration)/float64(time.Millisecond), metric.WithAttributes(otelAttrs...))
+	}()
+
+	// Increment request counter.
+	c.requests.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
+
+	// Start a span for this request.
+	ctx, span := c.cfg.Tracer.Start(ctx, GetCompanyNameOperation,
+		trace.WithAttributes(otelAttrs...),
+		clientSpanKind,
+	)
+	// Track stage for error reporting.
+	var stage string
+	defer func() {
+		if err != nil {
+			span.RecordError(err)
+			span.SetStatus(codes.Error, stage)
+			c.errors.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
+		}
+		span.End()
+	}()
+
+	stage = "BuildURL"
+	u := uri.Clone(c.requestURL(ctx))
+	var pathParts [1]string
+	pathParts[0] = "/company"
+	uri.AddPathParts(u, pathParts[:]...)
+
+	stage = "EncodeRequest"
+	r, err := ht.NewRequest(ctx, "GET", u)
+	if err != nil {
+		return res, errors.Wrap(err, "create request")
+	}
+
+	stage = "SendRequest"
+	resp, err := c.cfg.Client.Do(r)
+	if err != nil {
+		return res, errors.Wrap(err, "do request")
+	}
+	defer resp.Body.Close()
+
+	stage = "DecodeResponse"
+	result, err := decodeGetCompanyNameResponse(resp)
 	if err != nil {
 		return res, errors.Wrap(err, "decode response")
 	}

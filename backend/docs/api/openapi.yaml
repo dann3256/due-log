@@ -23,13 +23,13 @@ paths:
       tags:
         - Authentication
       requestBody:
-          required: true
-          $ref: "./components/requestBodies.yaml#/components/requestBodies/RegisterRequest"
-        
+        required: true
+        $ref: "./components/requestBodies.yaml#/components/requestBodies/RegisterRequest"
+
       responses:
         "201":
           $ref: "./components/responseBodies.yaml#/components/responses/UserResponse"
-        "400": 
+        "400":
           $ref: "./components/errors.yaml#/components/responses/ValidationError"
         "409":
           $ref: "./components/errors.yaml#/components/responses/ConflictError"
@@ -44,8 +44,8 @@ paths:
       tags:
         - Authentication
       requestBody:
-          required: true
-          $ref: "./components/requestBodies.yaml#/components/requestBodies/LoginRequest"
+        required: true
+        $ref: "./components/requestBodies.yaml#/components/requestBodies/LoginRequest"
 
       responses:
         "200":
@@ -59,7 +59,7 @@ paths:
         "500":
           $ref: "./components/errors.yaml#/components/responses/InternalServerError"
 
-  /createcompany:
+  /company:
     post:
       summary: Create a new company
       description: Create a new company record
@@ -67,14 +67,62 @@ paths:
       tags:
         - Company
       requestBody:
-          required: true
-          $ref: "./components/requestBodies.yaml#/components/requestBodies/CreateCompanyRequest"
+        required: true
+        $ref: "./components/requestBodies.yaml#/components/requestBodies/CreateCompanyRequest"
       responses:
-        "201": 
-         $ref: "./components/responseBodies.yaml#/components/responses/CompanyResponse"
-          
+        "201":
+          $ref: "./components/responseBodies.yaml#/components/responses/CompanyResponse"
         "400":
           $ref: "./components/errors.yaml#/components/responses/ValidationError"
         "500":
           $ref: "./components/errors.yaml#/components/responses/InternalServerError"
-        
+
+    get:
+      summary: Get company-name
+      operationId: GetCompanyName
+      tags:
+        - Company
+      responses:
+        "201":
+          $ref: "./components/responseBodies.yaml#/components/responses/CompanyNameResponse"
+        "500":
+          $ref: "./components/errors.yaml#/components/responses/InternalServerError"
+  /bill:
+    post:
+      summary: Create a bill
+      operationId: CreateBill
+      tags:
+        - Bill
+      requestBody:
+        required: true
+        $ref: "./components/requestBodies.yaml#/components/requestBodies/CreateBillRequest"
+      responses:
+        "201":
+          $ref: "./components/responseBodies.yaml#/components/responses/BillResponse"
+        "400":
+          $ref: "./components/errors.yaml#/components/responses/ValidationError"
+        "500":
+          $ref: "./components/errors.yaml#/components/responses/InternalServerError"
+
+  /bills:
+    get:
+      summary: Get Bill
+      operationId: GetBills
+      tags:
+        - Bill
+      parameters: 
+        - name: credit_date
+          in: query 
+          required: true
+          description: 請求書を取得する対象の日付 (YYYY-MM-DD)
+          schema:
+            type: string
+            format: date
+            example: "2025-09-30"
+      responses:
+          "200": # 成功時のステータスコード (201から修正)
+              $ref: "./components/responseBodies.yaml#/components/responses/BillsResponse"
+          "404":
+               $ref: "./components/errors.yaml#/components/responses/NotFoundError"
+          "500":
+           $ref: "./components/errors.yaml#/components/responses/InternalServerError"

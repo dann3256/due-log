@@ -6,7 +6,10 @@ package openapi
 type OperationName = string
 
 const (
-	CreateCompanyOperation OperationName = "CreateCompany"
-	LoginOperation         OperationName = "Login"
-	RegisterUserOperation  OperationName = "RegisterUser"
+	CreateBillOperation     OperationName = "CreateBill"
+	CreateCompanyOperation  OperationName = "CreateCompany"
+	GetBillsOperation       OperationName = "GetBills"
+	GetCompanyNameOperation OperationName = "GetCompanyName"
+	LoginOperation          OperationName = "Login"
+	RegisterUserOperation   OperationName = "RegisterUser"
 )

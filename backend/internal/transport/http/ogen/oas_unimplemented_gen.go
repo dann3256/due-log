@@ -13,12 +13,39 @@ type UnimplementedHandler struct{}
 
 var _ Handler = UnimplementedHandler{}
 
+// CreateBill implements CreateBill operation.
+//
+// Create a bill.
+//
+// POST /bill
+func (UnimplementedHandler) CreateBill(ctx context.Context, req *CreateBillReq) (r CreateBillRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
 // CreateCompany implements CreateCompany operation.
 //
 // Create a new company record.
 //
-// POST /createcompany
+// POST /company
 func (UnimplementedHandler) CreateCompany(ctx context.Context, req *CreateCompanyReq) (r CreateCompanyRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
+// GetBills implements GetBills operation.
+//
+// Get Bill.
+//
+// GET /bills
+func (UnimplementedHandler) GetBills(ctx context.Context, params GetBillsParams) (r GetBillsRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
+// GetCompanyName implements GetCompanyName operation.
+//
+// Get company-name.
+//
+// GET /company
+func (UnimplementedHandler) GetCompanyName(ctx context.Context) (r GetCompanyNameRes, _ error) {
 	return r, ht.ErrNotImplemented
 }
 

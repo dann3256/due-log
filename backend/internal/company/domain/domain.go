@@ -3,5 +3,9 @@ package domain
 type Company struct {
 	ID          int32
 	Name        string
-	Creditlimit int32
+	CreditLimit int32
+}
+
+type CompanyName struct{
+	Name string
 }

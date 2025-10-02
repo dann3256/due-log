@@ -2,6 +2,123 @@
 
 package openapi
 
+import (
+	"time"
+)
+
+type BillResponse struct {
+	ID         ID         `json:"id"`
+	Name       Name       `json:"name"`
+	Credit     Credit     `json:"credit"`
+	CreditDate CreditDate `json:"credit_date"`
+}
+
+// GetID returns the value of ID.
+func (s *BillResponse) GetID() ID {
+	return s.ID
+}
+
+// GetName returns the value of Name.
+func (s *BillResponse) GetName() Name {
+	return s.Name
+}
+
+// GetCredit returns the value of Credit.
+func (s *BillResponse) GetCredit() Credit {
+	return s.Credit
+}
+
+// GetCreditDate returns the value of CreditDate.
+func (s *BillResponse) GetCreditDate() CreditDate {
+	return s.CreditDate
+}
+
+// SetID sets the value of ID.
+func (s *BillResponse) SetID(val ID) {
+	s.ID = val
+}
+
+// SetName sets the value of Name.
+func (s *BillResponse) SetName(val Name) {
+	s.Name = val
+}
+
+// SetCredit sets the value of Credit.
+func (s *BillResponse) SetCredit(val Credit) {
+	s.Credit = val
+}
+
+// SetCreditDate sets the value of CreditDate.
+func (s *BillResponse) SetCreditDate(val CreditDate) {
+	s.CreditDate = val
+}
+
+func (*BillResponse) createBillRes() {}
+
+// Ref: #/components/schemas/Bills
+type Bills struct {
+	ID         int32     `json:"id"`
+	Name       string    `json:"name"`
+	Credit     int32     `json:"credit"`
+	CreditDate time.Time `json:"credit_date"`
+}
+
+// GetID returns the value of ID.
+func (s *Bills) GetID() int32 {
+	return s.ID
+}
+
+// GetName returns the value of Name.
+func (s *Bills) GetName() string {
+	return s.Name
+}
+
+// GetCredit returns the value of Credit.
+func (s *Bills) GetCredit() int32 {
+	return s.Credit
+}
+
+// GetCreditDate returns the value of CreditDate.
+func (s *Bills) GetCreditDate() time.Time {
+	return s.CreditDate
+}
+
+// SetID sets the value of ID.
+func (s *Bills) SetID(val int32) {
+	s.ID = val
+}
+
+// SetName sets the value of Name.
+func (s *Bills) SetName(val string) {
+	s.Name = val
+}
+
+// SetCredit sets the value of Credit.
+func (s *Bills) SetCredit(val int32) {
+	s.Credit = val
+}
+
+// SetCreditDate sets the value of CreditDate.
+func (s *Bills) SetCreditDate(val time.Time) {
+	s.CreditDate = val
+}
+
+type CompanyNameResponse struct {
+	Names []Name `json:"names"`
+}
+
+// GetNames returns the value of Names.
+func (s *CompanyNameResponse) GetNames() []Name {
+	return s.Names
+}
+
+// SetNames sets the value of Names.
+func (s *CompanyNameResponse) SetNames(val []Name) {
+	s.Names = val
+}
+
+func (*CompanyNameResponse) getCompanyNameRes() {}
+
 type CompanyResponse struct {
 	ID          ID          `json:"id"`
 	Name        Name        `json:"name"`
@@ -68,30 +185,70 @@ func (s *ConflictError) SetMessage(val OptString) {
 
 func (*ConflictError) registerUserRes() {}
 
-type CreateCompanyReq struct {
-	Name        string `json:"name"`
-	CreditLimit int    `json:"credit_limit"`
+type CreateBillReq struct {
+	Name       Name       `json:"name"`
+	Credit     Credit     `json:"credit"`
+	CreditDate CreditDate `json:"credit_date"`
 }
 
 // GetName returns the value of Name.
-func (s *CreateCompanyReq) GetName() string {
+func (s *CreateBillReq) GetName() Name {
+	return s.Name
+}
+
+// GetCredit returns the value of Credit.
+func (s *CreateBillReq) GetCredit() Credit {
+	return s.Credit
+}
+
+// GetCreditDate returns the value of CreditDate.
+func (s *CreateBillReq) GetCreditDate() CreditDate {
+	return s.CreditDate
+}
+
+// SetName sets the value of Name.
+func (s *CreateBillReq) SetName(val Name) {
+	s.Name = val
+}
+
+// SetCredit sets the value of Credit.
+func (s *CreateBillReq) SetCredit(val Credit) {
+	s.Credit = val
+}
+
+// SetCreditDate sets the value of CreditDate.
+func (s *CreateBillReq) SetCreditDate(val CreditDate) {
+	s.CreditDate = val
+}
+
+type CreateCompanyReq struct {
+	Name        Name        `json:"name"`
+	CreditLimit CreditLimit `json:"credit_limit"`
+}
+
+// GetName returns the value of Name.
+func (s *CreateCompanyReq) GetName() Name {
 	return s.Name
 }
 
 // GetCreditLimit returns the value of CreditLimit.
-func (s *CreateCompanyReq) GetCreditLimit() int {
+func (s *CreateCompanyReq) GetCreditLimit() CreditLimit {
 	return s.CreditLimit
 }
 
 // SetName sets the value of Name.
-func (s *CreateCompanyReq) SetName(val string) {
+func (s *CreateCompanyReq) SetName(val Name) {
 	s.Name = val
 }
 
 // SetCreditLimit sets the value of CreditLimit.
-func (s *CreateCompanyReq) SetCreditLimit(val int) {
+func (s *CreateCompanyReq) SetCreditLimit(val CreditLimit) {
 	s.CreditLimit = val
 }
+
+type Credit int
+
+type CreditDate time.Time
 
 type CreditLimit int
 
@@ -125,6 +282,10 @@ func (s *ForbiddenError) SetMessage(val OptString) {
 
 func (*ForbiddenError) loginRes() {}
 
+type GetBillsOKApplicationJSON []Bills
+
+func (*GetBillsOKApplicationJSON) getBillsRes() {}
+
 type ID int32
 
 // Ref: #/components/schemas/InternalServerError
@@ -153,9 +314,12 @@ func (s *InternalServerError) SetMessage(val OptString) {
 	s.Message = val
 }
 
-func (*InternalServerError) createCompanyRes() {}
-func (*InternalServerError) loginRes()         {}
-func (*InternalServerError) registerUserRes()  {}
+func (*InternalServerError) createBillRes()     {}
+func (*InternalServerError) createCompanyRes()  {}
+func (*InternalServerError) getBillsRes()       {}
+func (*InternalServerError) getCompanyNameRes() {}
+func (*InternalServerError) loginRes()          {}
+func (*InternalServerError) registerUserRes()   {}
 
 type LoginReq struct {
 	Name         Name         `json:"name"`
@@ -223,6 +387,34 @@ func (s *LoginResponse) SetRefreshToken(val string) {
 func (*LoginResponse) loginRes() {}
 
 type Name string
+
+// Ref: #/components/schemas/NotFoundError
+type NotFoundError struct {
+	Error   OptString `json:"error"`
+	Message OptString `json:"message"`
+}
+
+// GetError returns the value of Error.
+func (s *NotFoundError) GetError() OptString {
+	return s.Error
+}
+
+// GetMessage returns the value of Message.
+func (s *NotFoundError) GetMessage() OptString {
+	return s.Message
+}
+
+// SetError sets the value of Error.
+func (s *NotFoundError) SetError(val OptString) {
+	s.Error = val
+}
+
+// SetMessage sets the value of Message.
+func (s *NotFoundError) SetMessage(val OptString) {
+	s.Message = val
+}
+
+func (*NotFoundError) getBillsRes() {}
 
 // NewOptString returns new OptString with value set to v.
 func NewOptString(v string) OptString {
@@ -400,6 +592,7 @@ func (s *ValidationError) SetMessage(val OptString) {
 	s.Message = val
 }
 
+func (*ValidationError) createBillRes()    {}
 func (*ValidationError) createCompanyRes() {}
 func (*ValidationError) loginRes()         {}
 func (*ValidationError) registerUserRes()  {}
