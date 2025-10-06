@@ -39,7 +39,7 @@ const LoginPage: React.FC = () => {
       localStorage.setItem('refreshToken', response.refreshToken);
 
       // ログイン後のページに遷移する処理 (例: /dashboard)
-      // window.location.href = '/dashboard';
+       window.location.href = '/homepage';
 
     } catch (err) {
       console.error(err);
