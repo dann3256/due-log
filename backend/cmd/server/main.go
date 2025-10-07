@@ -125,22 +125,28 @@ func main() {
 
     // CORSミドルウェアを作成
     corsHandler := func(h http.Handler) http.Handler {
-        return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-            // 許可するオリジンを指定します。開発中は "*" ですべて許可することもできます。
-            w.Header().Set("Access-Control-Allow-Origin", "FRONTEND_URL") 
-            // プリフライトリクエストで許可するHTTPメソッド
-            w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
-            // プリフライトリクエストで許可するHTTPヘッダー
-            w.Header().Set("Access-Control-Allow-Headers", "Accept, Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization")
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			// Renderで設定した環境変数を読み込みます
+			origin := os.Getenv("FRONTEND_URL")
+			// もし環境変数がなければ、ローカル開発用にlocalhostを許可します
+			if origin == "" {
+				origin = "http://localhost:5173"
+			}
 
-            // プリフライトリクエスト(OPTIONS)の場合は、ここで処理を終了
-            if r.Method == "OPTIONS" {
-                return
-            }
-            
-            h.ServeHTTP(w, r)
-        })
-    }
+			// 環境に応じた正しいオリジンを許可するように設定します
+			w.Header().Set("Access-Control-Allow-Origin", origin)
+			w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
+			w.Header().Set("Access-Control-Allow-Headers", "Accept, Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization")
+			// 認証情報（Cookieなど）を扱う場合に重要です
+			w.Header().Set("Access-Control-Allow-Credentials", "true")
+
+			if r.Method == "OPTIONS" {
+				return
+			}
+
+			h.ServeHTTP(w, r)
+		})
+	}
     // 各レイヤーを作成
     queries := sqlc.New(dbpool)
     
