@@ -127,7 +127,7 @@ func main() {
     corsHandler := func(h http.Handler) http.Handler {
         return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
             // 許可するオリジンを指定します。開発中は "*" ですべて許可することもできます。
-            w.Header().Set("Access-Control-Allow-Origin", "http://localhost:5173") 
+            w.Header().Set("Access-Control-Allow-Origin", "FRONTEND_URL") 
             // プリフライトリクエストで許可するHTTPメソッド
             w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
             // プリフライトリクエストで許可するHTTPヘッダー
