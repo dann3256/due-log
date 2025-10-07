@@ -17,7 +17,7 @@ COPY backend/ ./
 # GoプログラムからC言語のコードを呼び出すCGoを無効化し、Cライブラリに依存しないバイナリファイルを生成
 # Go言語のクロスコンパイル(今いるOS以外のOC向けのバイナリファイルを作れる)を有効化し、Linux OS向けのバイナリを生成
 # 成果物を現在の作業ディレクトリ(/app)に 'server' という名前で出力
-RUN CGO_ENABLED=0 GOOS=linux go build -o ./server ./backend/cmd/server/main.go
+RUN CGO_ENABLED=0 GOOS=linux go build -o ./server ./cmd/server/main.go
 
 
 # ----------------- ステージ2: 実行環境 (final) -----------------
