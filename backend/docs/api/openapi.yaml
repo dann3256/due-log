@@ -9,7 +9,7 @@ servers:
 
 components:
   securitySchemes:
-    bearerAuth:
+    BearerAuth:
       type: http
       scheme: bearer
       bearerFormat: JWT
@@ -62,6 +62,8 @@ paths:
   /company:
     post:
       summary: Create a new company
+      security:
+        - BearerAuth: []
       description: Create a new company record
       operationId: CreateCompany
       tags:
@@ -79,6 +81,8 @@ paths:
 
     get:
       summary: Get company-name
+      security:
+        - BearerAuth: []
       operationId: GetCompanyName
       tags:
         - Company
@@ -90,6 +94,8 @@ paths:
   /bill:
     post:
       summary: Create a bill
+      security:
+        - BearerAuth: []
       operationId: CreateBill
       tags:
         - Bill
@@ -107,6 +113,8 @@ paths:
   /bills:
     get:
       summary: Get Bill
+      security:
+        - BearerAuth: []
       operationId: GetBills
       tags:
         - Bill

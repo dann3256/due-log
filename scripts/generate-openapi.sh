@@ -1,5 +1,4 @@
 set -euo pipefail
-
 ROOT_DIR=$(git rev-parse --show-toplevel)
 BIN_DIR="${ROOT_DIR}/backend/.bin"
 OPENAPI_OUT_DIR="${ROOT_DIR}/backend/internal/transport/http/ogen"

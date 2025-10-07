@@ -1,0 +1,91 @@
+/* src/pages/HomePage.module.css */
+
+/* ページ全体のコンテナ */
+.pageContainer {
+  display: flex;
+  justify-content: center; /* コンテンツを水平方向の中央に */
+  align-items: center;   /* コンテンツを垂直方向の中央に */
+  width: 100vw;          /* 表示領域の幅全体 */
+  min-height: 100vh;     /* 表示領域の高さ全体 */
+  overflow: hidden;
+}
+
+/* コンテンツを囲むボックス */
+.contentBox {
+  text-align: center;
+  padding: 40px 50px;
+  background: rgba(10, 25, 30, 0.6);
+  border-radius: 15px;
+  border: 1px solid rgba(0, 255, 194, 0.2);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+  max-width: 500px;
+  width: 90%;
+}
+
+/* メインタイトル */
+.title {
+  font-size: 2.5rem;
+  font-weight: 600;
+  color: #64ffda;
+  margin-bottom: 15px;
+  text-shadow: 0 0 10px rgba(100, 255, 218, 0.5);
+}
+
+/* 説明文 */
+.description {
+  font-size: 1.1rem;
+  margin-bottom: 30px;
+  color: #c0c0c0;
+}
+
+/* リンクをボタンのように見せるスタイル */
+.button {
+  display: inline-block;
+  padding: 12px 30px;
+  border: 2px solid #64ffda;
+  border-radius: 5px;
+  color: #64ffda;
+  background-color: transparent;
+  text-decoration: none;
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  width: 250px;
+}
+
+.button:hover {
+  background-color: rgba(100, 255, 218, 0.1);
+  color: #ffffff;
+  box-shadow: 0 0 15px rgba(100, 255, 218, 0.6);
+  transform: translateY(-3px);
+}
+
+
+/* =============================================== */
+/* パソコン用のスタイル (画面幅が768px以上で適用) */
+/* =============================================== */
+@media (min-width: 768px) {
+  .contentBox {
+    padding: 50px 70px;
+    max-width: 650px;
+  }
+
+  .title {
+    font-size: 3rem;
+  }
+
+  .description {
+    font-size: 1.2rem;
+    margin-bottom: 40px;
+  }
+
+  /* ボタンを横並びにするためのコンテナ */
+  .buttonContainer {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+  }
+}

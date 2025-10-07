@@ -59,10 +59,32 @@ type AccessTokenClaims struct {
 	jwt.RegisteredClaims
 }
 
+// ValidateAccessToken はアクセストークンを検証し、クレームを返します。
+func (m *Manager) ValidateAccessToken(tokenStr string) (*AccessTokenClaims, error) {
+	claims := &AccessTokenClaims{}
+
+	token, err := jwt.ParseWithClaims(tokenStr, claims, func(token *jwt.Token) (interface{}, error) {
+		// 署名方式がHMACであることを検証
+		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
+		}
+		return []byte(m.secretKey), nil
+	})
+
+	if err != nil {
+		return nil, err
+	}
+
+	if !token.Valid {
+		return nil, fmt.Errorf("invalid token")
+	}
+
+	return claims, nil
+}
+
 // GenerateTokensForUser はユーザー情報からアクセストークンとリフレッシュトークンを生成
 func (m *Manager) GenerateTokensForUser(userName string, email string, PasswordHash string) (accessToken string, refreshToken string, err error) {
 	
-
 	// アクセストークン
 	accessClaims := AccessTokenClaims{
 		Name:  userName,

@@ -21,6 +21,8 @@ import (
     bill_uc "github.com/dann3256/due-log/backend/internal/bill/usecase"
     bill_repo "github.com/dann3256/due-log/backend/internal/bill/repository"
 
+    "github.com/dann3256/due-log/backend/internal/handler" // 統合ハンドラとセキュリティハンドラ
+
     "github.com/jackc/pgx/v5/pgxpool"
      _"github.com/lib/pq" // PostgreSQLドライバ
      _"github.com/golang-jwt/jwt/v5"
@@ -29,6 +31,7 @@ import (
      _ "github.com/golang-migrate/migrate/v4/database/postgres" // PostgreSQL用のドライバ
      _ "github.com/golang-migrate/migrate/v4/source/file"       // ファイルからマイグレーションを読み込むためのドライバ
 )
+
 
 // 統合ハンドラー インターフェースを完全に実装
 type RootHandler struct {
@@ -119,6 +122,25 @@ func main() {
     if err != nil {
         log.Fatalf("Failed to create JWT Manager: %v", err)
     }
+
+    // CORSミドルウェアを作成
+    corsHandler := func(h http.Handler) http.Handler {
+        return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+            // 許可するオリジンを指定します。開発中は "*" ですべて許可することもできます。
+            w.Header().Set("Access-Control-Allow-Origin", "http://localhost:5173") 
+            // プリフライトリクエストで許可するHTTPメソッド
+            w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
+            // プリフライトリクエストで許可するHTTPヘッダー
+            w.Header().Set("Access-Control-Allow-Headers", "Accept, Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization")
+
+            // プリフライトリクエスト(OPTIONS)の場合は、ここで処理を終了
+            if r.Method == "OPTIONS" {
+                return
+            }
+            
+            h.ServeHTTP(w, r)
+        })
+    }
     // 各レイヤーを作成
     queries := sqlc.New(dbpool)
     
@@ -138,11 +160,14 @@ func main() {
      billHandler := bill_handler.NewAPIHandler(billUsecase) // 具体的な型を返す
 
     // 統合ハンドラーを作成
-    apiHandler := NewAPIHandler(userHandler, companyHandler, billHandler)
+    rootHandler := NewAPIHandler(userHandler, companyHandler, billHandler)
+
+    // ★ 1. セキュリティハンドラをインスタンス化する
+    secHandler := handler.NewSecurityHandler(jwtManager)
 
 
 
-    srv, err := openapi.NewServer(apiHandler)
+    srv, err := openapi.NewServer(rootHandler,secHandler)
     if err != nil {
      log.Fatalf("サーバー作成失敗: %v", err)
     }
@@ -150,7 +175,7 @@ func main() {
     // HTTPサーバー起動
     port := 8080
     log.Printf("サーバー起動 http://localhost:%d", port)
-    if err := http.ListenAndServe(fmt.Sprintf(":%d", port), srv); err != nil {
-    log.Fatalf("サーバー起動失敗: %v", err)
-   }
+    if err := http.ListenAndServe(fmt.Sprintf(":%d", port), corsHandler(srv)); err != nil {
+		log.Fatalf("サーバー起動失敗: %v", err)
+	}
 }

@@ -1,29 +1,26 @@
 // src/pages/HomePage.tsx
 
 import React from 'react';
-// react-router-domからLinkコンポーネントをインポートします
 import { Link } from 'react-router-dom';
+import styles from './HomePage.module.css';
 
 const HomePage: React.FC = () => {
   return (
-    <div style={{ textAlign: 'center', marginTop: '50px' }}>
-      <h1>振り込み管理画面</h1>
-      
-      <nav>
-        <ul style={{ listStyle: 'none', padding: 0 }}>
-          <li style={{ margin: '10px' }}>
-            {/* to属性で遷移先のパスを指定します */}
-            <Link to="/company-register">
-              <button>会社登録</button>
+    <div className={styles.pageContainer}>
+      <div className={styles.contentBox}>
+        <h1 className={styles.title}>振り込み管理</h1>
+        <nav>
+          {/* ボタンを囲むコンテナを追加し、PC用のスタイルを適用 */}
+          <div className={styles.buttonContainer}>
+            <Link to="/company-register" className={styles.button}>
+              会社登録
             </Link>
-          </li>
-          <li style={{ margin: '10px' }}>
-            <Link to="/transfer-management">
-              <button>振り込み管理</button>
+            <Link to="/transfer-management" className={styles.button}>
+              日付管理
             </Link>
-          </li>
-        </ul>
-      </nav>
+          </div>
+        </nav>
+      </div>
     </div>
   );
 };

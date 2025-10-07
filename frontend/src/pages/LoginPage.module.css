@@ -1,0 +1,119 @@
+/* src/pages/LoginPage.module.css */
+
+/* ページ全体を中央揃えにするコンテナ */
+.pageContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100vw;
+  min-height: 100vh;
+}
+
+/* フォームを囲むボックス */
+.formBox {
+  width: 90%;
+  max-width: 450px;
+  padding: 40px;
+  background: rgba(10, 25, 30, 0.7);
+  border-radius: 15px;
+  border: 1px solid rgba(0, 255, 194, 0.2);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+}
+
+/* フォームのタイトル */
+.title {
+  text-align: center;
+  font-size: 2rem;
+  font-weight: 600;
+  color: #64ffda;
+  margin-top: 0;
+  margin-bottom: 30px;
+  text-shadow: 0 0 10px rgba(100, 255, 218, 0.5);
+}
+
+/* ラベルと入力欄をまとめるグループ */
+.formGroup {
+  margin-bottom: 25px;
+}
+
+.label {
+  display: block;
+  margin-bottom: 8px;
+  color: #c0c0c0;
+  font-size: 0.9rem;
+}
+
+.input {
+  width: 100%;
+  padding: 12px;
+  background-color: rgba(0, 0, 0, 0.2);
+  border: 1px solid #455a64;
+  border-radius: 5px;
+  color: #f0f0f0;
+  font-size: 1rem;
+  box-sizing: border-box;
+  transition: border-color 0.3s, box-shadow 0.3s;
+  color-scheme: dark;
+}
+
+.input:focus {
+  outline: none;
+  border-color: #64ffda;
+  box-shadow: 0 0 10px rgba(100, 255, 218, 0.3);
+}
+
+.button {
+  width: 100%;
+  padding: 14px;
+  border: 2px solid #64ffda;
+  border-radius: 5px;
+  color: #64ffda;
+  background-color: transparent;
+  font-size: 1.1rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-top: 10px;
+}
+
+.button:hover:not(:disabled) {
+  background-color: rgba(100, 255, 218, 0.1);
+}
+
+.button:disabled {
+  border-color: #555;
+  color: #555;
+  cursor: not-allowed;
+}
+
+.errorMessage {
+  text-align: center;
+  margin: 15px 0;
+  padding: 10px;
+  border-radius: 5px;
+  font-weight: bold;
+  color: #ff8a80;
+  background-color: rgba(255, 138, 128, 0.1);
+  border: 1px solid rgba(255, 138, 128, 0.3);
+}
+
+/* 追加リンク用のコンテナ */
+.linksContainer {
+  margin-top: 25px;
+  text-align: center;
+}
+
+.secondaryLink {
+  color: #aaa;
+  text-decoration: none;
+  font-size: 0.9rem;
+  transition: color 0.3s;
+  margin: 0 10px;
+}
+
+.secondaryLink:hover {
+  color: #64ffda;
+  text-decoration: underline;
+}

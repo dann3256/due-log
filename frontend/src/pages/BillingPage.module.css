@@ -1,0 +1,206 @@
+/* src/pages/BillingPage.module.css */
+
+.pageContainer {
+  padding: 30px;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.title {
+  font-size: 2.5rem;
+  font-weight: 600;
+  color: #64ffda;
+  margin-bottom: 30px;
+  text-shadow: 0 0 10px rgba(100, 255, 218, 0.5);
+}
+
+/* --- 2カラムレイアウト --- */
+.dashboardGrid {
+  display: grid;
+  grid-template-columns: 350px 1fr; /* 左カラムを固定幅、右カラムを残り全部に */
+  gap: 30px;
+  align-items: start; /* カラムの高さを揃えない */
+}
+
+/* PC以外の画面では縦並びにする */
+@media (max-width: 1024px) {
+  .dashboardGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* --- カードの共通スタイル --- */
+.card {
+  padding: 30px;
+  background: rgba(10, 25, 30, 0.7);
+  border-radius: 15px;
+  border: 1px solid rgba(0, 255, 194, 0.2);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+}
+
+.cardTitle {
+  font-size: 1.5rem;
+  color: #fff;
+  margin-top: 0;
+  margin-bottom: 25px;
+  border-bottom: 1px solid rgba(0, 255, 194, 0.3);
+  padding-bottom: 15px;
+}
+
+/* --- フォーム関連のスタイル --- */
+.formGroup {
+  margin-bottom: 20px;
+}
+
+.label {
+  display: block;
+  margin-bottom: 8px;
+  color: #c0c0c0;
+  font-size: 0.9rem;
+}
+
+.input,
+.select {
+  width: 100%;
+  padding: 12px;
+  background-color: rgba(0, 0, 0, 0.2);
+  border: 1px solid #455a64;
+  border-radius: 5px;
+  color: #f0f0f0;
+  font-size: 1rem;
+  box-sizing: border-box;
+  transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+.input:focus,
+.select:focus {
+  outline: none;
+  border-color: #64ffda;
+  box-shadow: 0 0 10px rgba(100, 255, 218, 0.3);
+}
+
+.button {
+  width: 100%;
+  padding: 14px;
+  border: 2px solid #64ffda;
+  border-radius: 5px;
+  color: #64ffda;
+  background-color: transparent;
+  font-size: 1.1rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-top: 10px;
+}
+
+.button:hover:not(:disabled) {
+  background-color: rgba(100, 255, 218, 0.1);
+}
+
+.button:disabled {
+  border-color: #555;
+  color: #555;
+  cursor: not-allowed;
+}
+
+/* --- 一覧表示関連のスタイル --- */
+.billCategory {
+  margin-bottom: 25px;
+}
+
+.categoryHeader {
+  font-size: 1.2rem;
+  color: #fff;
+  margin-bottom: 15px;
+}
+
+.billTable {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.billTable th,
+.billTable td {
+  padding: 12px 15px;
+  text-align: left;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.billTable th {
+  background-color: rgba(0, 255, 194, 0.1);
+  color: #64ffda;
+  font-weight: 600;
+}
+
+/* 金額を右揃えに */
+.amountCell {
+  text-align: right;
+  font-family: monospace;
+  font-size: 1.1em;
+}
+
+/* --- メッセージ関連 --- */
+.loadingText, .emptyText {
+  color: #aaa;
+  padding: 20px;
+  text-align: center;
+}
+
+.message {
+  text-align: center;
+  margin: 15px 0;
+  padding: 10px;
+  border-radius: 5px;
+  font-weight: bold;
+}
+
+.errorMessage {
+  composes: message;
+  color: #ff8a80;
+  background-color: rgba(255, 138, 128, 0.1);
+  border: 1px solid rgba(255, 138, 128, 0.3);
+}
+
+.successMessage {
+  composes: message;
+  color: #b9f6ca;
+  background-color: rgba(185, 246, 202, 0.1);
+  border: 1px solid rgba(185, 246, 202, 0.3);
+}
+/* ページ上部のヘッダー */
+.pageHeader {
+  display: flex;
+  justify-content: space-between; /* 両端に配置 */
+  align-items: center;
+  margin-bottom: 30px;
+}
+
+/* 既存のtitleから下の余白を削除（pageHeaderで管理するため） */
+.title {
+  font-size: 2.5rem;
+  font-weight: 600;
+  color: #64ffda;
+  margin-bottom: 0; /* 変更 */
+  text-shadow: 0 0 10px rgba(100, 255, 218, 0.5);
+}
+
+/* 戻るボタンのスタイル */
+.backButton {
+  padding: 8px 20px;
+  border: 1px solid #555;
+  border-radius: 5px;
+  color: #aaa;
+  background-color: transparent;
+  text-decoration: none;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.backButton:hover {
+  border-color: #888;
+  color: #fff;
+  background-color: rgba(255, 255, 255, 0.1);
+}
