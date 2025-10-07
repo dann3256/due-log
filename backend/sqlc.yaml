@@ -1,0 +1,30 @@
+version: "2"
+sql:
+  - engine: postgresql
+    schema: "db/migrations/"
+    queries: "internal/infrastructure/db/queries/"
+    gen:
+      go:
+        package: sqlc
+        out: internal/infrastructure/db/sqlc
+        sql_package: pgx/v5
+
+        overrides:
+          # NOT NULL の date, timestamptz, time 型を time.Time にマッピング
+          - db_type: "date"
+            go_type: "time.Time"
+          - db_type: "timestamptz"
+            go_type: "time.Time"
+          - db_type: "pg_catalog.time"
+            go_type: "time.Time"
+
+          # NULL許容の date, timestamptz, time 型を *time.Time (ポインタ) にマッピング
+          - db_type: "date"
+            nullable: true
+            go_type: "*time.Time"
+          - db_type: "timestamptz"
+            nullable: true
+            go_type: "*time.Time"
+          - db_type: "pg_catalog.time"
+            nullable: true
+            go_type: "*time.Time"

@@ -1,0 +1,137 @@
+/* src/pages/CompanyRegistrationPage.module.css */
+
+/* ページ全体を中央揃えにするコンテナ */
+.pageContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100vw;
+  min-height: 100vh;
+  padding: 20px 0; /* 上下に少し余白を追加 */
+}
+
+/* フォームを囲むボックス */
+.formBox {
+  width: 90%;
+  max-width: 500px;
+  padding: 40px;
+  background: rgba(10, 25, 30, 0.7);
+  border-radius: 15px;
+  border: 1px solid rgba(0, 255, 194, 0.2);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+}
+
+/* フォームのタイトル */
+.title {
+  text-align: center;
+  font-size: 2rem;
+  font-weight: 600;
+  color: #64ffda;
+  margin-top: 0;
+  margin-bottom: 30px;
+  text-shadow: 0 0 10px rgba(100, 255, 218, 0.5);
+}
+
+/* ラベルと入力欄をまとめるグループ */
+.formGroup {
+  margin-bottom: 25px;
+}
+
+/* ラベルのスタイル */
+.label {
+  display: block;
+  margin-bottom: 8px;
+  color: #c0c0c0;
+  font-size: 0.9rem;
+}
+
+/* 入力欄のスタイル */
+.input {
+  width: 100%;
+  padding: 12px;
+  background-color: rgba(0, 0, 0, 0.2);
+  border: 1px solid #455a64;
+  border-radius: 5px;
+  color: #f0f0f0;
+  font-size: 1rem;
+  box-sizing: border-box; /* paddingを含めてwidth: 100%にする */
+  transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+/* 入力欄がフォーカスされた時のスタイル */
+.input:focus {
+  outline: none;
+  border-color: #64ffda;
+  box-shadow: 0 0 10px rgba(100, 255, 218, 0.3);
+}
+
+/* ボタンのスタイル */
+.button {
+  width: 100%;
+  padding: 14px;
+  border: 2px solid #64ffda;
+  border-radius: 5px;
+  color: #64ffda;
+  background-color: transparent;
+  font-size: 1.1rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-top: 10px;
+}
+
+.button:hover:not(:disabled) {
+  background-color: rgba(100, 255, 218, 0.1);
+  color: #ffffff;
+  box-shadow: 0 0 15px rgba(100, 255, 218, 0.6);
+}
+
+/* 無効状態のボタンスタイル */
+.button:disabled {
+  border-color: #555;
+  color: #555;
+  cursor: not-allowed;
+}
+
+/* エラー・成功メッセージの共通スタイル */
+.message {
+  text-align: center;
+  margin: 15px 0;
+  font-weight: bold;
+}
+
+.errorMessage {
+  composes: message; /* messageのスタイルを継承 */
+  color: #ff6b6b;
+}
+
+.successMessage {
+  composes: message; /* messageのスタイルを継承 */
+  color: #81c784;
+}
+
+/* 戻るボタンのスタイル */
+.backButton {
+  width: 100%;
+  padding: 14px;
+  border: 2px solid #555; /* 通常のボタンより控えめな色 */
+  border-radius: 5px;
+  color: #aaa;
+  background-color: transparent;
+  text-decoration: none; /* Linkコンポーネント用 */
+  display: block; /* Linkコンポーネント用 */
+  text-align: center; /* Linkコンポーネント用 */
+  font-size: 1.1rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-top: 15px; /* 登録ボタンとの間に余白 */
+  box-sizing: border-box;
+}
+
+.backButton:hover {
+  border-color: #888;
+  color: #fff;
+}

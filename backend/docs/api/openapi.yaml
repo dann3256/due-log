@@ -1,0 +1,136 @@
+openapi: 3.0.3
+info:
+  title: User Authentication API
+  description: JWT-based user authentication and registration API
+  version: 1.0.0
+servers:
+  - url: http://localhost:8080
+    description: Development server
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+paths:
+  /register:
+    post:
+      summary: Register a new user
+      description: Create a new user account
+      operationId: RegisterUser
+      tags:
+        - Authentication
+      requestBody:
+        required: true
+        $ref: "./components/requestBodies.yaml#/components/requestBodies/RegisterRequest"
+
+      responses:
+        "201":
+          $ref: "./components/responseBodies.yaml#/components/responses/UserResponse"
+        "400":
+          $ref: "./components/errors.yaml#/components/responses/ValidationError"
+        "409":
+          $ref: "./components/errors.yaml#/components/responses/ConflictError"
+        "500":
+          $ref: "./components/errors.yaml#/components/responses/InternalServerError"
+
+  /login:
+    post:
+      summary: Login user
+      description: Authenticate user and return JWT token
+      operationId: login
+      tags:
+        - Authentication
+      requestBody:
+        required: true
+        $ref: "./components/requestBodies.yaml#/components/requestBodies/LoginRequest"
+
+      responses:
+        "200":
+          $ref: "./components/responseBodies.yaml#/components/responses/LoginResponse"
+        "400":
+          $ref: "./components/errors.yaml#/components/responses/ValidationError"
+        "401":
+          $ref: "./components/errors.yaml#/components/responses/UnauthorizedError"
+        "403":
+          $ref: "./components/errors.yaml#/components/responses/ForbiddenError"
+        "500":
+          $ref: "./components/errors.yaml#/components/responses/InternalServerError"
+
+  /company:
+    post:
+      summary: Create a new company
+      security:
+        - BearerAuth: []
+      description: Create a new company record
+      operationId: CreateCompany
+      tags:
+        - Company
+      requestBody:
+        required: true
+        $ref: "./components/requestBodies.yaml#/components/requestBodies/CreateCompanyRequest"
+      responses:
+        "201":
+          $ref: "./components/responseBodies.yaml#/components/responses/CompanyResponse"
+        "400":
+          $ref: "./components/errors.yaml#/components/responses/ValidationError"
+        "500":
+          $ref: "./components/errors.yaml#/components/responses/InternalServerError"
+
+    get:
+      summary: Get company-name
+      security:
+        - BearerAuth: []
+      operationId: GetCompanyName
+      tags:
+        - Company
+      responses:
+        "201":
+          $ref: "./components/responseBodies.yaml#/components/responses/CompanyNameResponse"
+        "500":
+          $ref: "./components/errors.yaml#/components/responses/InternalServerError"
+  /bill:
+    post:
+      summary: Create a bill
+      security:
+        - BearerAuth: []
+      operationId: CreateBill
+      tags:
+        - Bill
+      requestBody:
+        required: true
+        $ref: "./components/requestBodies.yaml#/components/requestBodies/CreateBillRequest"
+      responses:
+        "201":
+          $ref: "./components/responseBodies.yaml#/components/responses/BillResponse"
+        "400":
+          $ref: "./components/errors.yaml#/components/responses/ValidationError"
+        "500":
+          $ref: "./components/errors.yaml#/components/responses/InternalServerError"
+
+  /bills:
+    get:
+      summary: Get Bill
+      security:
+        - BearerAuth: []
+      operationId: GetBills
+      tags:
+        - Bill
+      parameters: 
+        - name: credit_date
+          in: query 
+          required: true
+          description: 請求書を取得する対象の日付 (YYYY-MM-DD)
+          schema:
+            type: string
+            format: date
+            example: "2025-09-30"
+      responses:
+          "200": # 成功時のステータスコード (201から修正)
+              $ref: "./components/responseBodies.yaml#/components/responses/BillsResponse"
+          "404":
+               $ref: "./components/errors.yaml#/components/responses/NotFoundError"
+          "500":
+           $ref: "./components/errors.yaml#/components/responses/InternalServerError"

@@ -1,0 +1,410 @@
+openapi: 3.0.3
+info:
+  title: User Authentication API
+  description: JWT-based user authentication and registration API
+  version: 1.0.0
+servers:
+  - url: http://localhost:8080
+    description: Development server
+paths:
+  /register:
+    post:
+      summary: Register a new user
+      description: Create a new user account
+      operationId: RegisterUser
+      tags:
+        - Authentication
+      requestBody:
+        required: true
+        $ref: '#/components/requestBodies/RegisterRequest'
+      responses:
+        '201':
+          $ref: '#/components/responses/UserResponse'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '409':
+          $ref: '#/components/responses/ConflictError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  /login:
+    post:
+      summary: Login user
+      description: Authenticate user and return JWT token
+      operationId: login
+      tags:
+        - Authentication
+      requestBody:
+        required: true
+        $ref: '#/components/requestBodies/LoginRequest'
+      responses:
+        '200':
+          $ref: '#/components/responses/LoginResponse'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  /company:
+    post:
+      summary: Create a new company
+      security:
+        - BearerAuth: []
+      description: Create a new company record
+      operationId: CreateCompany
+      tags:
+        - Company
+      requestBody:
+        required: true
+        $ref: '#/components/requestBodies/CreateCompanyRequest'
+      responses:
+        '201':
+          $ref: '#/components/responses/CompanyResponse'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    get:
+      summary: Get company-name
+      security:
+        - BearerAuth: []
+      operationId: GetCompanyName
+      tags:
+        - Company
+      responses:
+        '201':
+          $ref: '#/components/responses/CompanyNameResponse'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  /bill:
+    post:
+      summary: Create a bill
+      security:
+        - BearerAuth: []
+      operationId: CreateBill
+      tags:
+        - Bill
+      requestBody:
+        required: true
+        $ref: '#/components/requestBodies/CreateBillRequest'
+      responses:
+        '201':
+          $ref: '#/components/responses/BillResponse'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  /bills:
+    get:
+      summary: Get Bill
+      security:
+        - BearerAuth: []
+      operationId: GetBills
+      tags:
+        - Bill
+      parameters:
+        - name: credit_date
+          in: query
+          required: true
+          description: 請求書を取得する対象の日付 (YYYY-MM-DD)
+          schema:
+            type: string
+            format: date
+            example: '2025-09-30'
+      responses:
+        '200':
+          $ref: '#/components/responses/BillsResponse'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    name:
+      type: string
+    email:
+      type: string
+      format: email
+    password_hash:
+      type: string
+    id:
+      type: integer
+      format: int32
+    ValidationError:
+      type: object
+      properties:
+        error:
+          type: string
+          example: Bad Request
+        message:
+          type: string
+          example: Input validation failed.
+    ConflictError:
+      type: object
+      properties:
+        error:
+          type: string
+          example: Conflict
+        message:
+          type: string
+          example: An account with this email address already exists.
+    InternalServerError:
+      type: object
+      properties:
+        error:
+          type: string
+          example: Internal Server Error
+        message:
+          type: string
+          example: An unexpected error occurred. Please try again later.
+    UnauthorizedError:
+      type: object
+      properties:
+        error:
+          type: string
+          example: Unauthorized
+        message:
+          type: string
+          example: Authentication token is missing or invalid.
+    ForbiddenError:
+      type: object
+      properties:
+        error:
+          type: string
+          example: Forbidden
+        message:
+          type: string
+          example: You do not have permission to access this resource.
+    credit_limit:
+      type: integer
+    credit:
+      type: integer
+    credit_date:
+      type: string
+      format: date
+    Bills:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int32
+        name:
+          type: string
+        credit:
+          type: integer
+          format: int32
+        credit_date:
+          type: string
+          format: date
+      required:
+        - id
+        - name
+        - credit
+        - credit_date
+    NotFoundError:
+      type: object
+      properties:
+        error:
+          type: string
+          example: Not Found
+        message:
+          type: string
+          example: The requested user profile was not found.
+  requestBodies:
+    RegisterRequest:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              name:
+                $ref: '#/components/schemas/name'
+              email:
+                $ref: '#/components/schemas/email'
+              password_hash:
+                $ref: '#/components/schemas/password_hash'
+            required:
+              - name
+              - email
+              - password_hash
+    LoginRequest:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              name:
+                $ref: '#/components/schemas/name'
+              email:
+                $ref: '#/components/schemas/email'
+              password_hash:
+                $ref: '#/components/schemas/password_hash'
+            required:
+              - name
+              - email
+              - password_hash
+    CreateCompanyRequest:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              name:
+                $ref: '#/components/schemas/name'
+              credit_limit:
+                $ref: '#/components/schemas/credit_limit'
+            required:
+              - name
+              - credit_limit
+    CreateBillRequest:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              name:
+                $ref: '#/components/schemas/name'
+              credit:
+                $ref: '#/components/schemas/credit'
+              credit_date:
+                $ref: '#/components/schemas/credit_date'
+            required:
+              - name
+              - credit
+              - credit_date
+  responses:
+    UserResponse:
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              id:
+                $ref: '#/components/schemas/id'
+              name:
+                $ref: '#/components/schemas/name'
+              email:
+                $ref: '#/components/schemas/email'
+            required:
+              - id
+              - name
+              - email
+    ValidationError:
+      description: Bad Request. The server cannot or will not process the request due to something that is perceived to be a client error (e.g., malformed request syntax, invalid request message framing, or deceptive request routing).
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ValidationError'
+    ConflictError:
+      description: Conflict. The request could not be completed due to a conflict with the current state of the resource (e.g., a duplicate item that must be unique).
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ConflictError'
+    InternalServerError:
+      description: Internal Server Error. An unexpected condition was encountered on the server that prevented it from fulfilling the request.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/InternalServerError'
+    LoginResponse:
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              accessToken:
+                type: string
+                description: APIリクエストの際に使用するJWTアクセストークン。有効期限は短い。
+                example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM...
+              refreshToken:
+                type: string
+                description: アクセストークンの有効期限が切れた際に、新しいトークンを再発行するために使用するトークン。有効期限は長い。
+                example: def50200f29182f7ac2b76137d30b8f0a9a4b441...
+            required:
+              - accessToken
+              - refreshToken
+    UnauthorizedError:
+      description: Unauthorized. The request requires authentication, but the provided credentials (e.g., JWT) are missing, invalid, or expired.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/UnauthorizedError'
+    ForbiddenError:
+      description: Forbidden. The server understood the request, but refuses to authorize it because the user lacks the necessary permissions for the resource.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ForbiddenError'
+    CompanyNameResponse:
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              names:
+                type: array
+                items:
+                  $ref: '#/components/schemas/name'
+            required:
+              - id
+              - name
+    CompanyResponse:
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              id:
+                $ref: '#/components/schemas/id'
+              name:
+                $ref: '#/components/schemas/name'
+              credit_limit:
+                $ref: '#/components/schemas/credit_limit'
+            required:
+              - id
+              - name
+              - credit_limit
+    BillResponse:
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              id:
+                $ref: '#/components/schemas/id'
+              name:
+                $ref: '#/components/schemas/name'
+              credit:
+                $ref: '#/components/schemas/credit'
+              credit_date:
+                $ref: '#/components/schemas/credit_date'
+            required:
+              - id
+              - name
+              - credit
+              - credit_date
+    BillsResponse:
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: '#/components/schemas/Bills'
+    NotFoundError:
+      description: Not Found. The requested resource could not be found on the server.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/NotFoundError'
